@@ -1,97 +1,103 @@
 # CASMI26 — Living Plan (continuous-planning, fleet-structured)
 
 **Goal:** Top-10% medal (target MRR ~0.30+) on Kaggle Enveda CASMI26
-(400 molecules, MRR@25) by reproducing the public V17 winner (~0.30-0.336)
-then beating it by grafting stronger open-source channels on. Deadline 2026-12-14.
+(400 molecules, MRR@25) by reproducing the public winner pipeline (0.335-0.339)
+then beating it by grafting stronger open-source channels. Deadline 2026-12-14.
 
-## Measured grounds (verified, data-driven — never vibes)
-- **Winner output analyzed:** 400×25, 100% valid, mass-correct (top-1 +1.008 Da =
-  [M+H]+), 82.6% of guesses are in the train library, 17.4% novel.
-- **Retrieval floor is MEASURED, not guessed:**
-  - dumb 1-Da cosine any-mass: **MRR 0.027** (3.5% hit@25)
-  - + 25-Da precursor window: **0.071** (10.8%)
-  - + real Ch1 recipe (entropy-weighted, ±8.5 ppm, peak align): **0.108** (17.5%)
+## MEASURED grounds (corrected this pass — earlier numbers were wrong)
+- **Winner output analyzed:** 400×25, 100% valid, mass-correct (+1.008 Da =
+  [M+H]+), 82.6% of guesses in train library, 17.4% novel.
+- **RETRACTION — the 0.108/0.0075 Ch1 numbers are INVALID.** Fleet F-BASE
+  (library search, twins-excluded) ruled 0.0075 locally — that OVER-tests the
+  17%-novel case. Winner diagnostics (Quad-Channel, public 0.339) show
+  **Ch1 library sim = 1.0 for 100% of real test molecules**. Retrieval is ~solved
+  by the matched library. The real game: among **~132 mass-window candidates**,
+  rank the CORRECT one first — a RANKER problem, not a library problem.
+- **Analog propagation is the real backbone (winner-measured):**
+  - single-channel Class-2 MRR **~0.52** (fair held-out, natural products AND
+    569-obscure structures → 0.516, generalises).
+  - prvsiyan analog-baseline public-LB ladder: spectral-only 0.151 →
+    +analog+ranker 0.233 → +class-weight 0.245 → +fragmentation 0.266 →
+    +fingerprint 0.299 → +merged-model/seed-rank **0.335**.
 - **Gate law:** every channel upgrade MUST beat the incumbent measured MRR to
-  ship. Never a swap that doesn't win head-to-head (ConnectX discipline).
+  ship (head-to-head, ConnectX discipline). No swap ships on a gut feeling.
+- **KEY LEAK (Two-Rankers, interview-grade):** public FPNet weights were trained
+  on most library structures → score 0.76-0.82 on seen sets, only 0.49 on truly
+  held-out. A ranker trained on them over-trusts the fingerprint channel.
+  MITIGATION (winning): two rankers (leak-free + leaky), blend ~0.65/0.35.
+- **MEASURED DEAD-END:** DreaMS embeddings as analog channel only ties Class-2
+  (0.58 vs 0.57-0.63) and helps only Class-1. Do NOT graft DreaMS.
 
-## Attack findings THIS pass (the brutal part)
-1. **The plan was not fleet-adequate — it was a linear TODO.** Fixed: restructured
-   into persona-ownable, handoff-gated phases below (researcher→architect→
-   engineer→checker per slice), so the fleet actually parallels, not serializes.
-2. **False-credibility risk that dies in review:** "we reproduced the winner's
-   Ch1" would be a lie — our 0.108 uses a 0.1-Da grid, far below the winner's
-   Ch1-MRR 1.000. Added a HONEST-CEILING marker + the fine-alignment step as a
-   first-class gate so we never oversell.
-3. **Dead scope killed:** de-novo SMILES generation (MSNovelist) is GPU-bound,
-   uncertain, low-signal per the 82.6%-retrievable data. Demoted from the plan;
-   retrieval+analog are the load-bearing 82%. State it flat, don't pretend.
-4. **Cheap/good reordered first:** consensus fusion (Rung 1, code-only) is the
-   highest-ROI-per-hour step and it comes first. Expensive SIRIUS/MIST is gated
-   behind measured retrieval headroom so we never burn days on a dead channel.
-5. **No single 3-mo estimate is checkable** → every phase has an EXIT GATE number.
+## Attack findings THIS pass
+1. **Killed a fake floor.** F-BASE's ≥0.108 gate was measuring the wrong
+   distribution (novel-only). The real, winner-proven backbone is analog (0.52
+   single-channel). Re-scoped: F-BASE gate = reproduce analog ≥~0.50 on a fair
+   Class-2 held-out. This is what actually buys MRR.
+2. **Killed dead scope earlier than before:** the whole Ch1-retrieval-rung chain
+   (F-CONS/F-MASS/F-ALIGN) is *lower value* than analog — the winners ladder
+   shows analog+ranker carries 0.233 of the 0.335. Reordered: ANALOG first.
+3. **Identified the leak trap** that would silently poison our ranker — fixed by
+   the two-ranker blend (their proven mitigation), not by pretending no leak.
+4. **No single 3-mo estimate is checkable** → every phase has an EXIT GATE number.
 
 ## Fleet-structured phases (each = dispatched persona, handoff-gated)
-Each phase dispatches a real profile: `researcher` (find/measure) → `architect`
-(spec) → `engineer` (build) → `checker` (judge vs incumbent). Gate must PASS to
-hand off. Savant workspace `CASMI26` (2277616941600993050) + KG track all.
+Each phase: `researcher` (find/measure) → `architect` (spec) → `engineer`
+(build) → `checker` (judge vs incumbent). Gate must PASS to hand off. Savant
+workspace `CASMI26` (2277616941600993050) + KG track all.
 
-**F-BASE (fleet: engineer + checker) — assemble, one runner, today**
-- Pull COCONUT pool (`prvsiyan/coconut-casmi26-candidates`) + fp_bits (RDKit
-  2026.03.3), build `rank_train.npz` from train, one `run.py` that does
-  Ch1+Ch2 end-to-end.
-- GATE: clean-script Ch1 MRR reproducibly >= 0.108 (must reproduce the floor
-  we measured, proving correctness before any upgrade).
+**F-ANALOG (fleet: engineer + checker) — THE BACKBONE, build first**
+- Reproduce mass-shifted analog propagation: ±200 Da window, `sim(a)^p ·
+  Tanimoto(fp_c, fp_a)` with p=4, on the COCONUT∪train pool (711,705).
+- GATE: **reproduce single-channel MRR ~>= 0.50** on a fair Class-2 held-out
+  (enveda-np-examples style: remove a natural product's spectra, match to the
+  rest). Proven achievable (winner: 0.521/0.516). Source:
+  `prvsiyan/analog-propagation-casmi-2026-baseline` (73 votes, has the kernel).
 
-**F-CONS (fleet: engineer + checker) — Rung 1: multi-spectrum consensus**
-- Merge each molecule's 3 collision-energy spectra → 1 consensus query
-  (winner `_merge_peaks`), re-measure.
-- PREDICTED MRR: **0.12-0.16**. GATE: > 0.108 (any lift = keep; expect strong).
+**F-RANKER (fleet: architect→engineer→checker) — the 0.233 achievement**
+- Build the 31-feature GBDT ranker (2 class-priors × 4 seeds) from
+  `rank_train.npz`-equivalent; train rows from a 7-query-set simulation
+  (2,250 mols, each twice: Class-1 + Class-2) — fixes the data-starved flaw.
+- GATE: predicted-LB on enveda-np-examples ~0.233 (the proven +analog+ranker
+  step). Source: `megayak/casmi26-two-rankers-one-engine`.
 
-**F-MASS (fleet: engineer + checker) — Rung 2: adduct-aware + tighter mass**
-- Correct neutral mass (precursor − proton), apply the +1.4 ppm timsTOF offset,
-  ±8.5 ppm window on neutral; adduct-aware.
-- PREDICTED MRR: **+0.01-0.03** on top of F-CONS. GATE: > incumbent.
+**F-CLASS (fleet: checker) — class-weight calibration**
+- Leaderboard-calibrated W1 priors (0.30, 0.60). GATE: ~0.245 (their +calib).
 
-**F-ALIGN (fleet: researcher→engineer→checker) — Rung 4: exact peak alignment**
-- Replace 0.1-Da grid with exact m/z alignment @ 0.01 Da + true entropy
-  weighting. Targets the honest Ch1 ceiling (winner = 1.000 on lib hits).
-- PREDICTED MRR: **0.15-0.20** combined. GATE: > incumbent.
+**F-FRAG (fleet: engineer→checker) — in-silico fragmentation (MetFrag-lite)**
+- Adduct-aware bond-break scoring. GATE: ~0.266 (proven step).
 
-**F-LEARN (fleet: researcher→architect→engineer→checker) — Rung 3: learned sim**
-- Graft **spec2vec** + **ms2deepscore**; embedded-space retrieval beats cosine.
-  Researcher pins pretrained weights/bundling (internet-off constraint).
-- PREDICTED MRR: **0.20-0.26**. GATE: > incumbent, clock < 9h, internet-free.
+**F-FP (fleet: engineer→checker) — fingerprint model channel**
+- **LEAK-SAFE**: use prvsiyan's public FPNet weights BUT train our ranker on
+  leak-free rows, or run two rankers + blend 0.65/0.35 (their proven mitigation).
+  GATE: ~0.299 single-ranker / up to 0.335 with merged+seed blend.
 
-**F-ANALOG (fleet: engineer→checker) — Rung 5: analog propagation**
-- ±200 Da mass-shift + scaffold Tanimoto (winner Ch2, Class-2 0.612). Catches
-  the 17.4% novel. PREDICTED MRR: **0.26-0.30**. GATE: > incumbent.
-
-**F-SHIP (fleet: engineer + checker) — P2: package ours**
-- Isolated worktree `~/code/casmi26`, venv+Dockerfile, notebook pinned deps +
-  bundled models, submit. GATE: submission equals local script output,
-  private-LB pulls.
+**F-SHIP (fleet: engineer + checker) — package + submit**
+- Isolated worktree `~/code/casmi26` (already git-seeded), venv+Dockerfile,
+  notebook with pinned deps + bundled models. GATE: notebook output == local
+  script output; private-LB pulls.
 
 **DELAYED (explicitly out of critical path, GPU-gated):** SIRIUS/CSI:FingerID
-(Ch3) and MIST/trained-FPNet (Ch4) — only if F-ANALOG leaves headroom and a GPU
-lane exists (Kaggle notebook ≤9h). Not promised, not needed for medal.
+(Ch3) and MIST/trained-FPNet (Ch4) — only if F-ANALOG→F-FP leaves headroom and a
+GPU lane exists. Not promised, not needed for medal.
 
 ## Predicted final outcomes (honest ranges)
-- F-BASE→F-ANALOG realistic cumulative: **~0.26-0.30 MRR → top-10% medal, likely
-  8th-15th of ~186-670 teams**, worth a genuine mass-spec ML resume line.
-- With SIRIUS/MIST headroom: **up to ~0.32-0.33** — cash-podium territory but
-  not guaranteed; de-novo tail demoted for a reason.
-- Floor we betray if we stop at F-CONS: ~0.12-0.16 (still beats baseline, but
-  not worth the winter).
+- F-ANALOG→F-FP realistic cumulative: **~0.30-0.335 MRR → top-10% medal, likely
+  8th-15th of ~670 teams** — a genuine, defensible mass-spec-ML resume line.
+- With SIRIUS/MIST headroom: up to ~0.34+ — cash-podium territory, not promised.
+- Floor we betray if we stop after F-ANALOG: ~0.52-single × 33% ≈ 0.17-0.20
+  (beats a from-scratch baseline but loses the medal).
 
 ## Open questions / risks
-- Ranker feat-scheme must match `rank_train.npz` → F-BASE locks it before
-  generating (P0 decision).
-- LB public/private noise ±0.02 → judge locally vs train-holdout, report both.
-- No local GPU → learned sim (spec2vec CPU-ok; ms2deepscore needs small GPU) may
-  train/run on Kaggle notebook (≤9h) or rig; F-LEARN researcher confirms before
-  F-LEARN engineer starts.
+- Can we reproduce analog at ~0.50 without their exact pool ordering? The COCONUT
+  pool + fp_bits are public (`prvsiyan/coconut-casmi26-candidates`); the analog
+  math is in the public notebook. High confidence, must verify on-disk.
+- Leak management is the #1 correctness risk — two-ranker blend or leak-free
+  rows is the acceptance gate, not optional.
+- LB public/private noise ±0.02 → judge locally vs a fair Class-2 holdout.
+- No local GPU → everything above is CPU-only (winner ran their full engine in
+  ~47 min CPU). Only SIRIUS/MIST need GPU; they're delayed.
 
 ## Priority next improvement (queued)
-Execute F-BASE then F-CONS (consensus fusion) — the cheapest, highest-ROI,
-code-only upgrade, directly measured against the 0.108 floor. Everything else
-waits on those two numbers.
+Execute **F-ANALOG** (the real backbone) — reproduce mass-shifted analog
+propagation to single-channel ~0.50 on a fair Class-2 held-out. That number
+validates the whole ladder before we build the ranker. Everything else waits on it.

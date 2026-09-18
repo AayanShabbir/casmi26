@@ -1,0 +1,18 @@
+AGENT: you are executing F-ANALOG for Kaggle CASMI26, on the AGY/Gemini lane.
+READ ~/code/casmi26/PLAN.md (F-ANALOG phase) + ~/code/casmi26/src/analog_run_v2.py (thin builder + runner)
++ ~/code/casmi26/src/analog_accel.py + ~/code/casmi26/src/analog_run_fast.py.
+WORKTREE ~/code/casmi26/. VENV .venv (numba 0.60, rdkit, numpy). No internet beyond local.
+RUN: .venv/bin/python -u src/analog_run_v2.py
+That script (a) loads+cleans train, (b) builds a TRAINING-only candidate pool with a self-consistent
+fp scheme (Morgan2+3+RDKit2048, packbits 1280B) so held-out train molecules ARE reachable candidates,
+(c) holds out 60 molecules, (d) does mass-shifted analog propagation score = max sim(a)^4 * Tanimoto
+(fpa, fpc), ranks the +-10ppm window, MRR@25.
+REQUIREMENTS:
+1) Execute it fully to completion (long run; bg it if needed inside your own session). Record real output.
+2) It must print "[F-ANALOG] valid tr-pool | MRR@25 = ...". If it crashes, fix the code and re-run.
+3) Sanity-check the fix list before running: the pool build (fp via packbits), the tanimoto (byte-AND popcount
+   table _POP), and that holdout molecules exist in pool (pool-reachable) — those were the prior 0.000 causes.
+4) Write docs/FANALOG_REPORT.md with: the measured MRR/hit@25, what you actually ran, any deviation.
+FINAL MESSAGE: the measured MRR@25 (real, from your run), plus whether it hit the >=0.45 gate.
+Real execution + real numbers ONLY. If you cannot get a valid nonzero measurement after fixing, say so
+exactly and print the last MRR you got plus the failure mode. Commit code to worktree git.

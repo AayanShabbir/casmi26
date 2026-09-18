@@ -1,0 +1,6 @@
+mode=self
+MRR@25=0.703680
+hit@25=0.842500
+n_queries=400
+build_time_s=1789755067.469564
+query_time_s=0.4

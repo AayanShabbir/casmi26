@@ -1,0 +1,14 @@
+F-BASE for Kaggle CASMI26. Read ~/code/casmi26/PLAN.md first (fleet phases, office of the plan).
+WORKTREE = ~/code/casmi26 (isolated git repo, seed 2a9ec5a — do not commit data/venv).
+VENV = ~/code/casmi26/.venv (rdkit 2025.09.2, pandas, numpy, pyarrow, scipy, scikit-learn installed).
+
+BUILD in the worktree ONE runner src/run.py that reproduces the measured Ch1 retrieval and is the base for all later phases. Do:
+1) kaggle competitions download -c enveda-CASMI26-molecule-id-mass-spectra to ~/code/casmi26 (or confirm local train/test already present; the parquet are already there — do not re-download 3GB).
+2) kaggle datasets download -d prvsiyan/coconut-casmi26-candidates -> unzip into data/ (COCONUT pool + fp_bits). List what it contains.
+3) Write src/lib.py: load train.parquet spectra (inchikey14 label, ms2_mzs/ms2_normalized_intensities lists, precursor_mz); entropy-weighted peak cleaning (floor 0.002, top 256, +200Da window, entropy sharpening); neutral mass = precursor - 1.00728; build a fast retrievable index (numpy; 0.1 Da bin vectors acceptable for F-BASE; keep vectors normalized). 
+4) Write src/run.py: hold out 400 train molecules (seed 0), for each query bake entropy-vs-255 with a tight neutral-mass window (ppm +-8.5 on NEUTRAL mass, not precursor), cosine rank candidate library spectra, MRR@25 by inchikey14. PRINT the measured MRR and hit@25. GATE: reproduce >= 0.108 (the measured floor). Run and record actual output.
+5) Confirm data/ has COCONUT pool; do NOT yet wire rank_train/FPNet (later phases).
+
+VERIFY by running: .venv/bin/python src/run.py  -> must print MRR + hit@25 and complete without error.
+Write docs/FBASE_REPORT.md with the path, what data/ contains, the measured MRR you actually got.
+FINAL MESSAGE: print the ABSOLUTE path of src/run.py, the measured MRR/hit@25, and the data/ listing. Real execution + real numbers ONLY — if you cannot reproduce >=0.108, say so exactly and print the number you got. NO fabrication.

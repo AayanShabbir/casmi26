@@ -1,0 +1,24 @@
+F-ANALOG for Kaggle CASMI26 — reproduce the mass-shifted analog-propagation backbone.
+READ FIRST: ~/code/casmi26/PLAN.md (F-ANALOG phase), and the winning source notebook at
+/tmp/casmi3/analog-propagation-casmi-2026-baseline.ipynb (analog math + kernel; read the cells
+-- especially the "main idea" markdown + similarity-kernels code + candidate-pool cells).
+WORKTREE=~/code/casmi26 (isolated git repo, seed 2a9ec5a). VENV=~/.venv (rdkit 2025.09.2, numpy,
+pandas, pyarrow, scipy, scikit-learn). COCONUT pool already at data/ (coco_fp.npy 436k x 867 sparse
+uint8 + coco_mass.npy + coco_meta.pkl + fp_bits.npy). train.parquet 2.5M spectra local.
+
+THE TASK: the winner's analog single-channel Class-2 MRR is ~0.50-0.52 on a fair held-out
+(a natural product's spectra REMOVED from the library, matched against the rest). Build src/analog.py +
+src/analog_run.py reproducing exactly:
+1) Spectral library load (train.parquet inchikey14 / precursor_mz / ms2_mzs / ms2_normalized_intensities).
+2) Entropy-weighted spectral similarity (Li entropy_sim, <-0.005 tol alignment, normalized).
+3) Mass-shifted analog: for query neutral mass m, search library representatives within +-200 Da,
+   shift each candidate's m/z by (m - rep_mass), compute entropy_sim_direct vs max(shifted); keep top N_ANALOG=100.
+4) Score(candidate) = max over analogs of sim(a)^4 * Tanimoto(fp_candidate, fp_analog), where fp comes
+   from the COCONUT pool (coco_fp.npy, deconvolute the sparse uint8 rows via fp_bits.npy indexing).
+5) Holdout: pick ~250 natural-product-like molecules, remove ALL their spectra from the library,
+   query each from its remaining-mass window, rank candidates, MRR@25 by inchikey14.
+PRINT measured single-channel analog MRR@25 + hit@25. GATE: >= 0.45 (winner ~0.52). If it does not
+hit, print the exact number and the top failure mode you see (e.g. pool key mismatch, fp decode bug).
+Write docs/FANALOG_REPORT.md: path, the analog formula actually shipped, measured MRR/hit@25.
+FINAL MESSAGE: absolute path of src/analog_run.py, measured MRR@25, the exact analog formula.
+Real execution + real numbers ONLY. NO fabrication. Commit code (not data) to the worktree git.

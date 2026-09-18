@@ -1,0 +1,4 @@
+mode=valid-train-pool
+MRR@25=0.212488
+hit@25=0.627451
+n_queries=51
