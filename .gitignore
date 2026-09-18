@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+train.parquet
+test.parquet
+sample_submission.csv
+*.zip
+winner_submission.csv
+*.npy
+*.npz
+*.pkl
+*.pt
+Dockerfile
+.pytest_cache/
