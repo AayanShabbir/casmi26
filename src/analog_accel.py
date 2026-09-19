@@ -9,7 +9,13 @@ INT_FLOOR = 0.002
 MAX_PEAKS = 256
 MZ_TOL = 0.01
 ADDUCT_NEUT = {"[M+H]+": PROTON, "[M+NH4]+": 18.0383, "[M+Na]+": 22.9892,
-               "[M+H-H2O]+": PROTON - 18.0106, "[M+2H]2+": 2*PROTON}
+               "[M+H-H2O]+": PROTON - 18.0106, "[M+2H]2+": 2*PROTON,
+               # test-set adducts missed by the original positive-only map (would
+               # NaN neutral mass -> molecules dropped from submission)
+               "[M-H]-": -PROTON,
+               "[M+CH2O2-H]-": -(46.0255 - PROTON),   # CH2O2 mass minus H
+               "[M+K]+": 38.9637,
+               "[M+Cl]-": -34.9693}
 
 
 def neutral_mass(mz, adduct):
