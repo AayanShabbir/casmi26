@@ -6,8 +6,11 @@
   "kernel_type": "notebook",
   "is_private": "true",
   "enable_gpu": "false",
-  "enable_internet": "true",
+  "enable_internet": "false",
   "competition_sources": [
     "enveda-casmi26-molecule-id-mass-spectra"
+  ],
+  "dataset_sources": [
+    "aayanshabbir/casmi26-trainpool"
   ]
 }

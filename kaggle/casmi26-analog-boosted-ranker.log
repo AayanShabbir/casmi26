@@ -1,43 +1,42 @@
-[{"stream_name":"stderr","time":9.024852608,"data":"/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n"}
-,{"stream_name":"stderr","time":9.024932605,"data":"  validate(nb)\n"}
-,{"stream_name":"stderr","time":10.396414548,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":10.396459256,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":10.396464553,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":10.396468543,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stderr","time":11.359942275,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":11.359981936,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":11.359985739,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":11.359988901,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stdout","time":17.67481726,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 38.1/38.1 MB 47.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":17.87733047,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 38.1/38.1 MB 47.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":22.799054367,"data":"[rdkit] installed via rdkit\n"}
-,{"stream_name":"stdout","time":22.801119551,"data":"[paths] TRAIN exists=False TEST exists=False\n"}
-,{"stream_name":"stderr","time":23.349988734,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":23.350024936,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":23.350032941,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
-,{"stream_name":"stderr","time":23.350933792,"data":"    raise_for_execution_errors(nb, output_path)\n"}
-,{"stream_name":"stderr","time":23.350962213,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
-,{"stream_name":"stderr","time":23.350969304,"data":"    raise error\n"}
-,{"stream_name":"stderr","time":23.350975229,"data":"papermill.exceptions.PapermillExecutionError: \n"}
-,{"stream_name":"stderr","time":23.350980237999998,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":23.350983797,"data":"Exception encountered at \"In [1]\":\n"}
-,{"stream_name":"stderr","time":23.350986994,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":23.350990236,"data":"AssertionError                            Traceback (most recent call last)\n"}
-,{"stream_name":"stderr","time":23.350993518,"data":"/tmp/ipykernel_16/3513775531.py in \u003ccell line: 0\u003e()\n"}
-,{"stream_name":"stderr","time":23.350997119,"data":"     26 OUT   = '/kaggle/working/submission.csv'\n"}
-,{"stream_name":"stderr","time":23.35100016,"data":"     27 print(f'[paths] TRAIN exists={os.path.exists(TRAIN)} TEST exists={os.path.exists(TEST)}', flush=True)\n"}
-,{"stream_name":"stderr","time":23.351105894,"data":"---\u003e 28 assert os.path.exists(TRAIN), f'train missing in {INP}: {os.listdir(INP)}'\n"}
-,{"stream_name":"stderr","time":23.351110614,"data":"     29 assert os.path.exists(TEST),  f'test missing in {INP}: {os.listdir(INP)}'\n"}
-,{"stream_name":"stderr","time":23.351113305,"data":"     30 import numpy as np\n"}
-,{"stream_name":"stderr","time":23.351115724,"data":"\n"}
-,{"stream_name":"stderr","time":23.35111817,"data":"AssertionError: train missing in /kaggle/input/competitions/: ['enveda-CASMI26-molecule-id-mass-spectra']\n"}
-,{"stream_name":"stderr","time":23.351120867,"data":"\n"}
-,{"stream_name":"stderr","time":26.397312733,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
-,{"stream_name":"stderr","time":26.397350316,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
-,{"stream_name":"stderr","time":26.63226977,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
-,{"stream_name":"stderr","time":26.63230637,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
-,{"stream_name":"stderr","time":27.512542488,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
-,{"stream_name":"stderr","time":27.910197556,"data":"[NbConvertApp] Writing 27714 bytes to __notebook__.ipynb\n"}
-,{"stream_name":"stderr","time":31.172110099,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
-,{"stream_name":"stderr","time":32.390149593,"data":"[NbConvertApp] Writing 409802 bytes to __results__.html\n"}
+[{"stream_name":"stderr","time":7.619162277,"data":"/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n"}
+,{"stream_name":"stderr","time":7.61926006,"data":"  validate(nb)\n"}
+,{"stream_name":"stderr","time":8.733108241,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.733147348,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.733153268,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.733158361,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":9.551301255,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.551340159,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.551346266,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.551351332,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":14.280102895,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 38.1/38.1 MB 42.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":14.483126743,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 38.1/38.1 MB 42.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":19.415965482,"data":"[rdkit] installed via rdkit\n"}
+,{"stream_name":"stdout","time":19.424301682,"data":"[paths] input=/kaggle/input/competitions/enveda-CASMI26-molecule-id-mass-spectra TRAIN=True TEST=True\n"}
+,{"stream_name":"stdout","time":24.592143331,"data":"deps ready\n"}
+,{"stream_name":"stdout","time":24.608881599,"data":"config ok\n"}
+,{"stream_name":"stdout","time":24.718635041,"data":"kernels ok\n"}
+,{"stream_name":"stdout","time":24.7426329,"data":"fp ok\n"}
+,{"stream_name":"stdout","time":24.765496067,"data":"lib ok\n"}
+,{"stream_name":"stdout","time":24.796392393,"data":"features ok\n"}
+,{"stream_name":"stdout","time":125.251505555,"data":"[lib+clean] 2539608 spectra 100s\n"}
+,{"stream_name":"stdout","time":126.397390772,"data":"[pool-fp] 275,810 structures 1s\n"}
+,{"stream_name":"stdout","time":354.414228649,"data":"[pool] 275,810 candidates 330s\n"}
+,{"stream_name":"stdout","time":358.695260731,"data":"[rep] 270355 reps 334s\n"}
+,{"stream_name":"stdout","time":524.698949466,"data":"[train] 2162 rows, 112 positives 500s\n"}
+,{"stream_name":"stdout","time":530.765795284,"data":"[fit] 8 HistGB 506s\n"}
+,{"stream_name":"stdout","time":530.963848631,"data":"[test-reps] 400 molecules 506s\n"}
+,{"stream_name":"stdout","time":623.038601574,"data":"  [598s] 100/400\n"}
+,{"stream_name":"stdout","time":740.982942164,"data":"  [716s] 200/400\n"}
+,{"stream_name":"stdout","time":864.944253536,"data":"  [840s] 300/400\n"}
+,{"stream_name":"stdout","time":967.848056131,"data":"  [943s] 400/400\n"}
+,{"stream_name":"stdout","time":967.849549335,"data":"inf ok\n"}
+,{"stream_name":"stdout","time":969.706560945,"data":"[F-SUBMIT] wrote /kaggle/working/submission.csv (400 rows) | missing_features=1 | 945s\n"}
+,{"stream_name":"stderr","time":974.300976716,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":974.301025579,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":974.522230574,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":974.522277229,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":975.366609245,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":975.795166959,"data":"[NbConvertApp] Writing 30068 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":979.19410257,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":980.466926451,"data":"[NbConvertApp] Writing 409460 bytes to __results__.html\n"}
 ]
