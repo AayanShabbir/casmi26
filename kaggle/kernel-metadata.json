@@ -1,0 +1,13 @@
+{
+  "id": "aayanshabbir/casmi26-analog-boosted-ranker",
+  "title": "CASMI26 analog + boosted ranker",
+  "code_file": "casmi26_notebook.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "false",
+  "enable_internet": "true",
+  "competition_sources": [
+    "enveda-casmi26-molecule-id-mass-spectra"
+  ]
+}
