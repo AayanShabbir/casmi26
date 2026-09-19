@@ -1,42 +1,43 @@
-[{"stream_name":"stderr","time":7.123629891,"data":"/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n"}
-,{"stream_name":"stderr","time":7.123721299,"data":"  validate(nb)\n"}
-,{"stream_name":"stderr","time":8.187026419,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":8.187081797,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":8.187089096,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":8.187094149,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stderr","time":8.963274296,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":8.963309942,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":8.96331599,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":8.963319573,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stdout","time":10.24846784,"data":"[paths] input=/kaggle/input/competitions/enveda-CASMI26-molecule-id-mass-spectra POOL=/kaggle/input/casmi26-trainpool/trainpool.npz\n"}
-,{"stream_name":"stdout","time":13.623411971,"data":"deps ready\n"}
-,{"stream_name":"stdout","time":13.641708407,"data":"config ok\n"}
-,{"stream_name":"stderr","time":14.388832559,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":14.388861965,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":14.388869657,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
-,{"stream_name":"stderr","time":14.388888809000001,"data":"    raise_for_execution_errors(nb, output_path)\n"}
-,{"stream_name":"stderr","time":14.389108901,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
-,{"stream_name":"stderr","time":14.389208399,"data":"    raise error\n"}
-,{"stream_name":"stderr","time":14.389329037,"data":"papermill.exceptions.PapermillExecutionError: \n"}
-,{"stream_name":"stderr","time":14.389338472,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":14.389345202,"data":"Exception encountered at \"In [3]\":\n"}
-,{"stream_name":"stderr","time":14.389351594,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":14.389358123,"data":"NameError                                 Traceback (most recent call last)\n"}
-,{"stream_name":"stderr","time":14.389364115,"data":"/tmp/ipykernel_16/3908603240.py in \u003ccell line: 0\u003e()\n"}
-,{"stream_name":"stderr","time":14.389370369,"data":"      7     return out\n"}
-,{"stream_name":"stderr","time":14.389376128,"data":"      8 \n"}
-,{"stream_name":"stderr","time":14.389381612,"data":"----\u003e 9 @njit(cache=True, fastmath=True)\n"}
-,{"stream_name":"stderr","time":14.389387558,"data":"     10 def _clean(mz, it, floor, topk):\n"}
-,{"stream_name":"stderr","time":14.389393155,"data":"     11     n = len(mz)\n"}
-,{"stream_name":"stderr","time":14.389421432,"data":"\n"}
-,{"stream_name":"stderr","time":14.389426555,"data":"NameError: name 'njit' is not defined\n"}
-,{"stream_name":"stderr","time":14.389431395,"data":"\n"}
-,{"stream_name":"stderr","time":17.240472695,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
-,{"stream_name":"stderr","time":17.240511592,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
-,{"stream_name":"stderr","time":17.446326858,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
-,{"stream_name":"stderr","time":17.446354957,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
-,{"stream_name":"stderr","time":18.296465302,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
-,{"stream_name":"stderr","time":18.708016946,"data":"[NbConvertApp] Writing 25631 bytes to __notebook__.ipynb\n"}
-,{"stream_name":"stderr","time":22.009674699,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
-,{"stream_name":"stderr","time":23.219526557000002,"data":"[NbConvertApp] Writing 397403 bytes to __results__.html\n"}
+[{"stream_name":"stderr","time":9.044190558,"data":"/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n"}
+,{"stream_name":"stderr","time":9.044277231,"data":"  validate(nb)\n"}
+,{"stream_name":"stderr","time":10.366044684,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":10.366086464,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":10.366099227,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":10.366103618,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":11.280179017,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":11.280219929,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":11.280225891,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":11.280229832,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":12.733440121,"data":"[paths] input=/kaggle/input/competitions/enveda-CASMI26-molecule-id-mass-spectra POOL=/kaggle/input/casmi26-trainpool/trainpool.npz\n"}
+,{"stream_name":"stdout","time":19.432910822,"data":"deps ready\n"}
+,{"stream_name":"stdout","time":19.451513024,"data":"config ok\n"}
+,{"stream_name":"stdout","time":19.606587501,"data":"kernels ok\n"}
+,{"stream_name":"stderr","time":23.315669225,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":23.315708004,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":23.315713792,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":23.316502722,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":23.316528325,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":23.316534673,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":23.316540305,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":23.316545404,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":23.316550338,"data":"Exception encountered at \"In [4]\":\n"}
+,{"stream_name":"stderr","time":23.316555272,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":23.316560216,"data":"NameError                                 Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":23.31656364,"data":"/tmp/ipykernel_16/122823419.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":23.31656714,"data":"      6 pool_mass = mass0[o]\n"}
+,{"stream_name":"stderr","time":23.31657034,"data":"      7 pool_keys = keys0[o]\n"}
+,{"stream_name":"stderr","time":23.316573457,"data":"----\u003e 8 print(f'[pool] {len(pool_mass):,} candidates fp{pool_fp.shape} {time.time()-t0:.0f}s', flush=True)\n"}
+,{"stream_name":"stderr","time":23.316592632,"data":"      9 _POP = np.array([bin(i).count('1') for i in range(256)], dtype=np.float64)\n"}
+,{"stream_name":"stderr","time":23.316595528,"data":"     10 def packed_tanimoto(a, b):\n"}
+,{"stream_name":"stderr","time":23.316597963,"data":"\n"}
+,{"stream_name":"stderr","time":23.316600294,"data":"NameError: name 't0' is not defined\n"}
+,{"stream_name":"stderr","time":23.316602777,"data":"\n"}
+,{"stream_name":"stderr","time":26.227677928,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":26.227722062,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":26.45122492,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":26.451254827,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":27.337958206,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":27.735648749,"data":"[NbConvertApp] Writing 26834 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":30.898762485,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":32.107919165,"data":"[NbConvertApp] Writing 398620 bytes to __results__.html\n"}
 ]
