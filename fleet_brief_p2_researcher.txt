@@ -1,0 +1,51 @@
+# RESEARCHER BUILD BRIEF — CASMI26 Phase 2: F-CLASS & F-CONS (write code, NO heavy compute)
+
+You are `researcher`. Build the next ranker upgrade for CASMI26. **Bounded, write-only
+task — you DO NOT run heavy training/inference** (that runs later as a separate
+background process). Your job: correct, self-consistent CODE — gated on the Phase-1
+incumbent (MRR 0.2670). Read authority code FIRST — facts, don't re-derive.
+
+AUTHORITY + REUSE (read, work ONLY in ~/code/casmi26):
+- `docs/ARCHITECT_PLAN.md` (Phase 2 spec), `docs/FRANKER_PLAN.md`, `docs/HANDOFF.md`.
+- `src/f_ranker.py` — incumbent ranker. `query_features(L, key2pool, pool_fp, pool_keys,
+  pool_mass, nmr, rep, r)` returns `(Xf, y, target, cand, k)` — feature matrix over
+  candidate set + the query's own key. `main()` fits 8 HistGB and MRR=0.2670 on the
+  SEED-11 60-mol holdout. Reuse its feature extraction & split logic EXACTLY.
+- `src/analog_accel.py` — `A.Lib`, `A._clean`, cleaned spectra cmz/cp/coff, neutral
+  mass nm, reps. `f_speed.search_shift_prange` (fast, bit-exact).
+- `data/trainpool.npz` — candidate library keys/mass/fp.
+
+## Phase-2 scope (from arch plan)
+1. **F-CONS (consensus clustering)**: aggregate the analog candidates by structural
+   similarity before ranking — cluster candidate molecules (e.g. Tanimoto on pool fp
+   above a threshold -> representative per cluster), so repeated near-identical
+   candidates don't over-populate the top-k. Rank on cluster representatives, then map
+   back. This should lift MRR by diversifying the analog channel.
+2. **F-CLASS (class-prior calibration)**: calibrate the HistGB ranker's predicted
+   proba using the empirical class prior (the 112/2163 positive ratio) and/or a
+   monotonic isotonic/Platt-style recalibration on held-out train queries — so the
+   per-candidate confidence ordering is corrected, not just normalized.
+
+## Deliverables (write these)
+1. `src/f_cons.py` (NEW): consensus-clustering module. `cluster_candidates(pool_fp,
+   cand_indices, threshold=0.7)` -> representative subset; integrate into the ranking
+   so top-25 are diverse (pick top score per cluster, never >1 per tight cluster).
+   Reuse the Tanimoto bytes code already in the repo.
+2. `src/f_class.py` (NEW): class-prior calibration. Fit + apply recalibration to the
+   HistGB proba; expose `calibrate(proba, y_prior)` returning calibrated scores.
+3. `src/phase2_runner.py` (NEW): trains the Phase-1 rankers, THEN applies F-CLASS +
+   F-CONS, measures MRR@25 on the same SEED-11 60-mol holdout. Prints
+   `[F-PHASE2] MRR@25 = ...` and PASS/FAIL **vs 0.2670 incumbent** (must strictly beat
+   it or it doesn't ship). Persists the upgraded model to `data/franker_phase2.pkl`.
+4. Reuse `f_speed.search_shift_prange` (NOT serial). No heavy compute runs.
+
+## Hard constraints
+- Same split/logic as f_ranker.py so MRR is directly comparable.
+- Real, monotone, reproducible decisions — no fabricated features.
+- Reuse existing Tanimoto/pool/analog code; don't re-implement.
+- No data/ pool mutation, no re-downloads, no secrets. AST-check + import smoke only.
+
+## Gate
+`python src/phase2_runner.py` (run later by a background process) must print a real
+MRR@25 and PASS/FAIL vs 0.2670. You report file paths written + AST/import clean.
+Real numbers only — if you cannot make it beat 0.2670 in code, say so honestly.

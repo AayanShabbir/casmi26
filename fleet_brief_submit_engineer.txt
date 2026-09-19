@@ -1,0 +1,51 @@
+# ENGINEER BUILD BRIEF — CASMI26 F-SUBMIT (write the submission path, NO heavy compute)
+
+You are `engineer`. Write a real Kaggle submission path for CASMI26. **Bounded,
+write-only task — you DO NOT run the heavy training/inference** (it takes ~10 min
+lib-load + per-query feature extraction; it runs as a separate background process
+afterward). Your job: produce correct, self-consistent CODE + persist the trained
+model. Read the authority code FIRST — facts, don't re-derive.
+
+AUTHORITY + REUSE (read these, work ONLY in ~/code/casmi26):
+- `src/f_ranker.py` — the existing ranker. `query_features(...)` builds the feature
+  matrix; `main()` fits 8 HistGB (2 prior {0.5,0.6} x 4 seeds) and evaluates on the
+  SEED-11 60-mol holdout. **It currently does NOT save the model.**
+- `src/analog_accel.py` — `A.Lib(train.parquet)` = cleaned spectra (cmz/cp/coff),
+  neutral mass `nm`, reps. `A._clean(mz, it, floor, topk)` cleans a spectrum.
+- `data/trainpool.npz` — candidate library: `keys` (inchikey14), `mass`, `fp`
+  (packed Tanimoto bytes). Submission SMILES come from train molecules' SMILES.
+- `test.parquet` — 1213 spectra (400 unique molecule_id, MS2 mzs + normalized
+  intensities, precursor_mz, adduct, ionization_mode).
+- `sample_submission.csv` — 401 rows: `molecule_id,smiles`. SMILES = 25 candidates
+  joined by `;` (top-25 ranked). We rank the **train-pool candidate molecules** by
+  predicted score, map the top-25 to their SMILES strings.
+- `train.parquet` has `normalized_smiles` + `inchikey14` to build key->SMILES.
+
+## Deliverables (write these exactly)
+1. `src/f_ranker.py`: add **model persistence** — after `main()` fits the 8 rankers,
+   save them (cloudpickle/joblib) AND the fitted feature-scaler params (if any) to
+   `data/franker_model.pkl` (dict: {"rankers":[...], "feat_dim":n}). Also expose a
+   `train_and_persist()` so a background runner can call it and exit.
+2. `src/f_submit.py` (NEW, main deliverable): end-to-end inference + submission.
+   - Load `data/franker_model.pkl` (error clearly if missing).
+   - Build `key -> normalized_smiles` map from train.parquet (unique inchikey14).
+   - For each of the 400 unique test molecules: clean its spectra (use the FIRST /
+     highest base_peak_intensity spectrum per molecule_id), pick a representative rep
+     spectrum, run the SAME feature extraction as `query_features` against
+     train-pool candidates, apply the 8-rankers mean proba, rank candidates, take
+     top-25, map to SMILES.
+   - Emit `submission.csv` matching sample_submission format: molecule_id,smiles
+     (25 SMILES `;`-joined). If <25 candidates, pad with the top analog SMILES.
+   - Print `[F-SUBMIT] wrote submission.csv (400 rows)`.
+   - Reuse the EXACT train/test split logic so validation MRR reproduces ~0.2670.
+
+## Hard constraints
+- Reuse `f_speed.search_shift_prange` (bit-exact, fast) — NOT serial `_search_shift_batch`.
+- No re-downloads, no data/ pool mutations, no logged secrets.
+- Consistency: candidate fp scheme must match trainpool.npz (already consistent).
+- Do NOT run heavy compute; AST-check + lightweight import smoke only.
+
+## Gate
+When `python src/f_submit.py` is run by a background process it must produce a
+well-formed `submission.csv` (400 rows, exact format). You report the file paths
+written + confirm AST/import clean. Real numbers only.

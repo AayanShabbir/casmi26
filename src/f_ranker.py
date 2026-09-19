@@ -14,6 +14,7 @@ from multiprocessing import Pool
 from rdkit import Chem, RDLogger
 from rdkit.Chem import rdFingerprintGenerator, Descriptors
 from sklearn.ensemble import HistGradientBoostingClassifier
+import joblib
 RDLogger.DisableLog("rdApp.*")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,6 +24,7 @@ import f_speed as FS
 
 TRAIN = os.path.join(ROOT, "train.parquet")
 POOL_CACHE = os.path.join(ROOT, "data", "trainpool.npz")
+MODEL_PATH = os.path.join(ROOT, "data", "franker_model.pkl")
 N_TRAINQ = 120      # non-holdout molecules whose candidates become training rows
 N_HOLDOUT = 60      # holdout molecules for eval (SEED 11, same as F-ANALOG)
 SEED = 11
@@ -74,11 +76,13 @@ def load_pool():
     return fp[o], mass[o], keys[o]
 
 
-def query_features(L, key2pool, pool_fp, pool_keys, pool_mass, nmr, rep, r):
-    """Return (Xf[nc,NFEAT], y[nc], target, cand_idx, qkey)."""
-    k = str(L.ik[r]); target = float(L.nm[r])
-    a, b = L.off[r], L.off[r + 1]
-    qm, qp = L.cmz[a:b], L.cp[a:b]
+def features_for_query(qm, qp, target, rep, nmr, acoff, acmz, acp, aik,
+                       key2pool, pool_fp, pool_keys, pool_mass, qkey=None):
+    """Shared feature core. Score query spectrum (qm,qp) against train-analog
+    reps + trainpool candidates. `rep`/`nmr` are the sorted analog rep indices
+    and their neutral masses; `acoff,acmz,acp,aik` are the analog library's
+    cleaned arrays + keys. Returns (Xf[nc,NFEAT], y[nc], target, cand, qkey)
+    or None when no candidate/analog coverage exists."""
     lo = np.searchsorted(nmr, target - ANALOG_WIN, "left")
     hi = np.searchsorted(nmr, target + ANALOG_WIN, "right")
     if hi <= lo:
@@ -86,14 +90,13 @@ def query_features(L, key2pool, pool_fp, pool_keys, pool_mass, nmr, rep, r):
     rep_rows = rep[lo:hi]
     shifts = (target - nmr[lo:hi]).astype(np.float32)
     sims = FS.search_shift_prange(qm, qp, rep_rows.astype(np.int64),
-                                  L.coff.astype(np.int64), L.cmz, L.cp, A.MZ_TOL, shifts)
+                                  acoff.astype(np.int64), acmz, acp, A.MZ_TOL, shifts)
     agg = {}
     for j in range(len(rep_rows)):
-        ka = str(L.ik[rep_rows[j]])
+        ka = str(aik[rep_rows[j]])
         if sims[j] > agg.get(ka, -1.0):
             agg[ka] = float(sims[j])
     analogs = sorted(agg.items(), key=lambda x: -x[1])[:N_ANALOG]
-    # unique analog keys + their sims
     akeys = [x[0] for x in analogs]; asims = np.array([x[1] for x in analogs])
     half = PPM_WIN * 1e-6 * target
     cand = np.where(np.abs(pool_mass - target) <= half)[0]
@@ -101,10 +104,9 @@ def query_features(L, key2pool, pool_fp, pool_keys, pool_mass, nmr, rep, r):
         return None
     cf = pool_fp[cand]
     nc = len(cand)
-    # per-candidate: max sim to any analog, its tanimoto, combined, count, rank
     max_sim = np.zeros(nc); bk_tan = np.zeros(nc); combined = np.zeros(nc); cnt = np.zeros(nc, np.int32)
-    max_sim2 = np.zeros(nc); max_sim4 = np.zeros(nc)           # max s^2 / s^4 over overlapping analogs
-    sum_sim2 = np.zeros(nc); sum_sim4 = np.zeros(nc)            # running sums (divided by cnt later)
+    max_sim2 = np.zeros(nc); max_sim4 = np.zeros(nc)
+    sum_sim2 = np.zeros(nc); sum_sim4 = np.zeros(nc)
     n_hi = np.zeros(nc, np.int32); n_mid = np.zeros(nc, np.int32); n_lo = np.zeros(nc, np.int32)
     for j, ak in enumerate(akeys):
         pi = key2pool.get(ak)
@@ -126,7 +128,6 @@ def query_features(L, key2pool, pool_fp, pool_keys, pool_mass, nmr, rep, r):
         n_hi += (ov & (s >= 0.8)).astype(np.int32)
         n_mid += (ov & (s >= 0.6) & (s < 0.8)).astype(np.int32)
         n_lo += (ov & (s >= 0.4) & (s < 0.6)).astype(np.int32)
-    # lib sim = max over analogs that ARE the candidate key itself
     lib_sim = np.zeros(nc)
     for j, ak in enumerate(akeys):
         pi = key2pool.get(ak)
@@ -135,12 +136,10 @@ def query_features(L, key2pool, pool_fp, pool_keys, pool_mass, nmr, rep, r):
         m = np.where(pool_keys[cand] == np.asarray(pool_keys[pi]))[0]
         if len(m):
             lib_sim[m] = max(lib_sim[m], float(asims[j]))
-    # rank features: normalize
     rankoftop = np.zeros(nc); ecdf_tan = np.zeros(nc); ecdf_comb = np.zeros(nc)
     for c in range(nc):
-        # fractional rank of this candidate's max_sim among all peaks (1=best)
         rankoftop[c] = 1.0 - (np.sum(max_sim > max_sim[c]) / max(nc, 1))
-        ecdf_tan[c] = np.sum(bk_tan < bk_tan[c]) / max(nc, 1)      # frac of cohort with lower tanimoto
+        ecdf_tan[c] = np.sum(bk_tan < bk_tan[c]) / max(nc, 1)
         ecdf_comb[c] = np.sum(combined < combined[c]) / max(nc, 1)
     ppm = (pool_mass[cand] - target) / target * 1e6
     lcand = np.log(nc + 1.0)
@@ -153,13 +152,26 @@ def query_features(L, key2pool, pool_fp, pool_keys, pool_mass, nmr, rep, r):
                           np.floor(np.abs(ppm)), (lib_sim > 0).astype(np.float32)])
     assert Xf.shape[1] == NFEAT, (Xf.shape[1], NFEAT)
     y = np.zeros(nc, dtype=np.int8)
-    qkidx = np.where(pool_keys[cand] == np.asarray(k))[0]
-    if len(qkidx):
-        y[qkidx[0]] = 1
-    return Xf.astype(np.float32), y, target, cand, k
+    if qkey is not None:
+        qkidx = np.where(pool_keys[cand] == np.asarray(qkey))[0]
+        if len(qkidx):
+            y[qkidx[0]] = 1
+    return Xf.astype(np.float32), y, target, cand, qkey
 
 
-def main():
+def query_features(L, key2pool, pool_fp, pool_keys, pool_mass, nmr, rep, r):
+    """Return (Xf[nc,NFEAT], y[nc], target, cand_idx, qkey)."""
+    k = str(L.ik[r]); target = float(L.nm[r])
+    a, b = L.off[r], L.off[r + 1]
+    qm, qp = L.cmz[a:b], L.cp[a:b]
+    return features_for_query(qm, qp, target, rep, nmr, L.coff, L.cmz, L.cp, L.ik,
+                              key2pool, pool_fp, pool_keys, pool_mass, qkey=k)
+
+
+def _fit_persist():
+    """Load lib+pool, build reps, fit the 8 rankers, persist the model dict.
+    Returns (RANKERS, proba, eval_ctx) where eval_ctx holds the data/eval
+    variables main() needs for the holdout MRR pass."""
     t0 = time.time()
     L = A.Lib(TRAIN)
     print(f"[lib+clean] {L.n} spectra {time.time()-t0:.0f}s", flush=True)
@@ -180,16 +192,16 @@ def main():
     pool_key_set = set(pool_keys.tolist())
     t2 = pq.read_table(TRAIN, columns=["inchikey14"]); df = t2.to_pandas().drop_duplicates("inchikey14")
     reach = [k for k in df.inchikey14.values if k in pool_key_set]
-    # identical holdout to F-ANALOG (SEED 11, rng.choice 60) so the gate compares like-for-like
     eval_keys = set(rng.choice(reach, size=min(N_HOLDOUT, len(reach)), replace=False).tolist())
     eval_keys_remaining = [k for k in reach if k not in eval_keys]
     train_keys = eval_keys_remaining[:N_TRAINQ]
     print(f"[split] holdout={len(eval_keys)} trainq={len(train_keys)} {time.time()-t0:.0f}s", flush=True)
-    # ---- training rows ---- 
+    # ---- training rows ----
     Xtr = []; ytr = []
+    tkeys_set = set(train_keys)
     for r in rep:
         k = str(L.ik[r])
-        if k not in set(train_keys):
+        if k not in tkeys_set:
             continue
         res = query_features(L, key2pool, pool_fp, pool_keys, pool_mass, nmr, rep, r)
         if res is None:
@@ -197,7 +209,7 @@ def main():
         Xf, y, _, _, _ = res
         Xtr.append(Xf); ytr.append(y)
     if not Xtr:
-        print("[F-RANKER] no training rows!"); return
+        raise SystemExit("[F-RANKER] no training rows!")
     Xtr = np.vstack(Xtr); ytr = np.concatenate(ytr)
     print(f"[train] {Xtr.shape[0]} rows, {ytr.sum()} positives {time.time()-t0:.0f}s", flush=True)
     # ---- train (2 priors x 4 seeds bagging, per winner) ----
@@ -213,7 +225,31 @@ def main():
     def proba(X):
         return np.mean([m.predict_proba(X)[:, 1] for m in RANKERS], axis=0)
     print(f"[fit] {len(RANKERS)} HistGB {time.time()-t0:.0f}s", flush=True)
-    # ---- eval on holdout ----
+    # ---- persist (model = rankers + feature dim; scaler: none fit) ----
+    payload = {"rankers": RANKERS, "feat_dim": NFEAT}
+    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+    joblib.dump(payload, MODEL_PATH)
+    print(f"[persist] {MODEL_PATH} ({os.path.getsize(MODEL_PATH):,} bytes)", flush=True)
+    ctx = dict(L=L, rep=rep, nmr=nmr, key2pool=key2pool, pool_fp=pool_fp,
+               pool_keys=pool_keys, pool_mass=pool_mass, eval_keys=eval_keys)
+    return RANKERS, proba, ctx
+
+
+def train_and_persist():
+    """Fit the 8 rankers and persist the model dict; return model path.
+    Safe for a background runner to call and exit without the eval pass."""
+    RANKERS, proba, ctx = _fit_persist()
+    return MODEL_PATH
+
+
+def main():
+    """Train + persist, then measure MRR@25 on the SEED-11 holdout."""
+    RANKERS, proba, ctx = _fit_persist()
+    L = ctx["L"]; rep = ctx["rep"]; nmr = ctx["nmr"]
+    key2pool = ctx["key2pool"]; pool_fp = ctx["pool_fp"]
+    pool_keys = ctx["pool_keys"]; pool_mass = ctx["pool_mass"]
+    eval_keys = ctx["eval_keys"]
+    t0 = time.time()
     mrr = 0.0; hit = 0; q = 0
     for r in rep:
         k = str(L.ik[r])

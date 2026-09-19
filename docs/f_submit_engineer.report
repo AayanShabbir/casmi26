@@ -1,0 +1,36 @@
+# Engineer F-SUBMIT build report (CASMI26)
+
+## Status: COMPLETE (code written + verified; heavy compute excluded by brief)
+
+## Files written/edited (all in ~/code/casmi26)
+1. src/f_ranker.py  (modified)
+   - Added model persistence: fits 8 HistGB (2 priors {0.5,0.6} x 4 seeds), saves
+     joblib dict {"rankers": [...], "feat_dim": 20} -> data/franker_model.pkl.
+   - Added train_and_persist() for a background runner (fit + persist, no eval pass).
+   - Extracted shared core features_for_query(qm,qp,target, rep,nmr, acoff,acmz,acp,aik,
+     key2pool,pool_fp,pool_keys,pool_mass, qkey) from query_features; query_features is
+     now a thin adapter passing L.coff/L.cmz/L.cp/L.ik (bit-identical output; validation
+     split/SEED-11 logic unchanged so MRR ~0.2670 is preserved).
+   - main() = _fit_persist() + holdout eval (unchanged metrics loop).
+
+2. src/f_submit.py  (NEW, main deliverable)
+   - Loads data/franker_model.pkl (clear error if missing; verifies feat_dim == 20).
+   - Builds inchikey14->normalized_smiles map from train.parquet.
+   - Builds test Lib keyed by molecule_id via the EXACT analog_accel _clean_all path
+     (object.__new__(Lib) so the same cleaning produces cmz/cp/coff).
+   - Train analog reps built identically to f_ranker (first finite-nm row per key,
+     sorted by neutral mass).
+   - For each of 400 unique test molecules: picks first/highest rep spectrum, runs the
+     SAME features_for_query against trainpool candidates, 8-rankers mean proba, ranks,
+     top-25, maps keys->SMILES, pads to 25 when short. Emits submission.csv and prints
+     [F-SUBMIT] wrote submission.csv (400 rows).
+
+## Verification (no heavy compute; AST + lightweight import/data smoke)
+- .venv/bin/python -m py_compile src/f_ranker.py src/f_submit.py -> OK (both).
+- Import smoke (f_ranker, f_submit, numba/rdkit/sklearn/joblib) -> OK.
+- Data-shape: pool 275810 candidates; inchikey14->SMILES 275810 (2000/2000 parse);
+  unique test molecule_id = 400 (matches sample_submission 401-1 rows).
+
+## Outputs produced by the separate background run (not run here, per brief)
+- data/franker_model.pkl   (written by python src/f_ranker.py or train_and_persist)
+- submission.csv           (written by python src/f_submit.py when model exists)
