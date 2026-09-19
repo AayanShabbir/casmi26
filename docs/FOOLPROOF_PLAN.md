@@ -1,30 +1,45 @@
-# CASMI26 — FOOLPROOF REBUILD PLAN (v2, 2026-09-19, continuous-planning pass)
+# CASMI26 — FOOLPROOF REBUILD PLAN (v3, 2026-09-19, continuous-planning pass 2)
+> v3: corrected class-share math (f₃≈0.55 majority, NOT 39%), inverted the lever ordering
+> (ranking > recall — pool already saturated), and added the flagship's hard-won measured
+> dead ends so we don't burn submissions/time re-discovering them. Data source: prvsiyan
+> flagship's own measured teardown (read in full).
 > Owned by Root. Every phase has a numeric gate on the SAME metric as the LB (MRR@25, InChIKey14
 > canonical, Class-1/Class-2 simulation). Nothing advances without passing its gate on a holdout
 > that does NOT lie. v2 change: Phase 1 is now FORK-FIRST (reproduce a proven 0.335, then diverge),
 > not rebuild-from-scratch, and compute reality is budgeted explicitly.
 
-## THE GROUND RULES (non-negotiable, from the 5-notebook teardown)
-1. **MRR@25 is an exact-structure metric.** Retrieval is the game. Generation (Class-3) is only
-   worth it AFTER retrieval rejoin — a generated SMILES that isn't the exact InChIKey14 tautomer
-   scores 0.
-2. **Pool quality >> ranking quality.** Big, dedup'd, well-windowed pool = biggest lever (±10ppm,
-   InChIKey14-dedup, train∪COCONUT∪ChEBI/LIPID ~712k). NEVER cap aggressively (0.992→0.752 @80).
+## GROUND RULES (v3) — non-negotiable, from 5-notebook teardown + prvsiyan's measured numbers
+1. **MRR@25 is an exact-structure metric.** Retrieval is the game. A generated SMILES that isn't
+   the exact InChIKey14 tautomer scores 0.
+2. **RANKING > RECALL (v3 correction).** The pool is ALREADY saturated — ρ≈1, COCONUT covers 99.6%
+   of enveda-np-examples. The ceiling with any reasonable pool is ~0.43; every point to 0.43 is
+   ORDERING, not coverage. **Do NOT spend time enlarging databases.**
 3. **Merge 4+ evidence channels, never one signal**: analog-propagation + gated library match +
-   spectrum→fingerprint proba + in-silico fragmentation.
+   spectrum→fingerprint proba + in-silico fragmentation. Each is an independent view.
 4. **A data-starved ranker is the #1 silent loss.** Train on SIMULATED Class-1/Class-2 rows
-   (≥2,250 molecules × both classes).
-5. **Fingerprint-model weights have SEEN the library** (0.76–0.82 seen vs 0.49 held-out). Two
-   rankers (leak-safe + leaky), blended. Watch the FP channel's trust.
-6. **Validate the way the LB scores**: Class-1/Class-2 simulation (remove structure from every
-   library) + the 250 enveda-np held-out queries. Random splits OVERESTIMATE. Audit every number.
-7. **Final 25 = metric-exact dedup** on tautomer-canonical InChIKey14 (RDKit 2026.3.3 grader). Only
-   unique ranked candidates — NO padding (poison → 0.000 risk; rules allow <25, no penalty).
-8. **OFFLINE-SUBMITTABLE at every checkpoint**: no pip/rdkit/internet in the kernel; ship pools/fps/
+   (≥2,250 molecules × both classes). Hold out by QUERY, never by row (candidates of one molecule
+   must be on one side of the split).
+5. **Fingerprint-model weights have SEEN the library** (0.76–0.82 seen vs 0.49 truly held-out).
+   Two rankers (leak-safe + leaky), blended.
+6. **Local validation is a FILTER, not a DECISION.** It catches broken things (retention, leaks,
+   recall) but CANNOT rank two working configs. Config choices cost submissions. Audit every gate.
+7. **Final 25 = metric-exact dedup** on tautomer-canonical InChIKey14 (RDKit 2026.3.3 grader).
+   Unique ranked candidates only — NO padding (poison; rules allow <25).
+8. **OFFLINE-SUBMITTABLE at every checkpoint**: no pip/rdkit/internet in the kernel; pools/fps/
    peaks-lib as private datasets; pretest locally against a /kaggle/input mirror before pushing.
-9. **Licensing greenlit**: COCONUT 2.0 + CFM-ID in-silico, LGPL runtime deps, ChemBERTa, MIT weights.
-   Use them.
+9. **Licensing greenlit**: COCONUT 2.0 + CFM-ID in-silico, LGPL runtime, ChemBERTa, MIT weights.
 10. **Every gate number is real**: who measured it, on what split, with what code. Zero fabricated.
+
+## CLASS-SHARE MATH (v3 correction — from prvsiyan's LB algebra + measured pool coverage)
+- **f₁ (Class 1) ≈ 0.162** — saturated; the 0.151 library-only submission already IS all of it.
+- **f₂ (Class 2) ≥ 0.27** (hard bound from B = f₂·ρ = 0.271, ρ≤1); working estimate 0.27–0.30.
+- **f₃ (Class 3) ≈ 0.55 — the MAJORITY.** Unreachable by ANY retrieval. This is the real prize and
+  the field is at its raw start. (My v2 called it 39% — wrong; the leaderboard forbids more than
+  ~0.43 from retrieval alone, and leaders cluster just above 0.35 as everyone converges on the same
+  reachable fraction.)
+- **Where we are:** 0.077 clean = we're not even extracting class-1/library value yet. Getting
+  retrieval RIGHT is worth up to ~0.43. Generation (f₃) is the difference between ~0.43 ceiling
+  and a real win.
 
 ## COMPUTE REALITY (budget — constrains everything)
 - **Our Mac (16GB unified): NO usable GPU for this.** Pool/fingerprint/dataset *build* = CPU, fine
@@ -62,23 +77,32 @@
 - Gate: **LB ≥0.30 → Phase 1 done.** (0.28 min acceptable first push.)
 - This turns a multi-week rebuild into a fork → reproduce → 3 surgical grafts.
 
-## PHASE 2 — Pool/retrieval quality (target: +0.02–0.08 on PHASE 1)
-1. Measure **answer-in-top-25 rate** vs pool — how much of missing ~60% is pool-limited (Class-2)
-   vs Class-3. This is the open community question; answering it deferentially steers Phases 2 vs 4.
-2. Candidate-source sweep: COCONUT subsets, domain expansion, adduct-aware windows. Keep anything
-   that raises top-25 retention WITHOUT wrecking analog-Tanimoto (PubChem = caution, cat 0.350).
-3. **Adduct-shifted library similarity** (megayak): same mol as [M+Na]+ vs [M+H]+ keeps neutral
-   losses. Adduct labels curated-clean — DON'T re-hypothesize, DO shift-match.
-- Gate: Class-2 MRR up AND LB up. Stop when marginal < noise.
+## PHASE 2 — RANKING quality (v3: rename + re-scope; target: +0.02–0.06 on PHASE 1)
+**v3 correction: this was "Pool/retrieval quality" — recall is NOT the bottleneck (ρ≈1).**
+1. **Second input VIEW, not a second model.** The largest isolated effect in the whole comp
+   was **+0.019** from pairing a per-spectrum model with a merged-input model. Add a genuinely
+   *different* reading of the spectra (different peak preprocessing / collision-energy-conditioned
+   encoder / MS1-aware) — cheap vs training a bigger net, high value. (prvsiyan #1.)
+2. **Better per-spectrum model.** The pair is only as good as its weaker half; ours is ~20k steps.
+   Retrain the fp model longer w/ best-by-validation checkpoint + augmentation. (prvsiyan #2.)
+3. **More ranker seeds** — free variance reduction vs 0.0072 noise floor. Tune folds held out by
+   QUERY. (A second merged-input model of the same kind is redundant — measured −0.006.)
+4. **Measure answer-in-top-25 rate** as a function of pool once (the open question), but do NOT
+   chase it with database expansions — that is measured-dead (see dead ends below).
+- Gate: LB up by ≥2×noise (≥0.012), twice, on two DIFFERENT submissions. Not local MRR.
 
-## PHASE 3 — Ranker/calibration polish (target: +0.02 on PHASE 2)
-1. Feature audit: which of the ~31 features carry signal on Class-2 (library-miss)?
-2. Multi-seed bag, dual-prior W, per-class Platt calibration BEFORE final blend.
-3. Candidate-cap re-test at multiple windows (400 vs none) — confirm retention holds.
-- Gate: discard anything that doesn't beat incumbent by ≥2× noise.
+## PHASE 3 — Ranker/calibration polish (target: +0.01–0.02 on PHASE 2)
+1. Feature audit: which of the ~31 features carry signal on Class-2 (library-miss)? (Mass-error
+   percentile and view-agreement were measured washes — don't chase.)
+2. Multi-seed bag, dual-prior W, per-class Platt calibration BEFORE final blend. Re-sweep the
+   class prior whenever a channel improves (the W optimum moved 0.50→0.45 as the model improved).
+3. Candidate-cap re-test (400 vs none) at the ranker, NOT the window — window ±10 ppm is load-
+   bearing, post-window caps cost Class-2 recall. Verify retention holds.
+- Gate: config choice is settled by SUBMISSION (local validation cannot rank configs), and only
+  kept if LB beats incumbent by ≥2×noise. Two identical-config runs first to soak the noise floor.
 
-## PHASE 4 — Class-3 generation (target: first positive net; the differentiated lever)
-**~39% of test, NO public winner — the open, winnable angle.**
+## PHASE 4 — Class-3 generation (target: first positive net; THE differentiated lever)
+**v3 correction: f₃ ≈ 0.55 — the MAJORITY of the test. No public winner. This is the real prize.**
 1. spectrum→SMILES de-novo generator (encoder-decoder transformer; ChemBERTa or MolMule-style
    decoder) fine-tuned on 2.5M train spectra. Output top-K candidate SMILES.
 2. **CRITICAL GATING**: a generated candidate must clear an evidence threshold (FP proba + analog
@@ -106,10 +130,37 @@
 - LB deltas < ±0.006 seed noise; phase "done" only when its gate is beat by ≥2× noise.
 - Every push records: config hash, local gate number, expected LB range. Compare.
 
-## STATUS TRACKER (v2)
-- [ ] PHASE 0 — kern v9 RUNNING, score PENDING (confirms clean submission)
+## STATUS TRACKER (v3)
+- [ ] PHASE 0 — kern v10 RUNNING (unique-candidate writer + no-empty fix), score PENDING
 - [ ] PHASE 1 — FORK prvsiyan → reproduce ≥0.30 → 3 surgical grafts (the big jump)
-- [ ] PHASE 2 — pool/retrieval quality
-- [ ] PHASE 3 — ranker/calibration polish
-- [ ] PHASE 4 — Class-3 de-novo generation (differentiator, GPU budgeted)
+- [ ] PHASE 2 — RANKING quality (second input view, better per-spectrum model, seeds)
+- [ ] PHASE 3 — ranker/calibration polish (config by submission)
+- [ ] PHASE 4 — Class-3 de-novo generation (f₃≈0.55, THE majority lever, GPU-budgeted)
 - [ ] PHASE 5 — ensemble & final submit
+
+---
+## ⛔ MEASURED DEAD ENDS (from prvsiyan's teardown — do NOT burn submissions re-discovering)
+| Idea | Measured result |
+|---|---|
+| Add all PubChem isomers to pool | 0.52→0.35 Class-2 (catastrophic) |
+| Admitting model's top-50 PubChem | 0.337 — still bad |
+| Soft consensus-fp over analogs | 0.43 vs 0.52 max-over-analogs |
+| Per-instrument analog-sim normalisation | 0.517 vs 0.521 |
+| Confidence gate 'answer-not-in-pool' | AUC 0.627 — too weak to route on |
+| 2nd model of SAME input view | 0.335→0.329 (redundant) |
+| Test-time avg over per-spectrum+merged | merged-only 0.516 > mean 0.509 |
+| Re-weight analogs by predicted-fp fit | 0.521→0.512 |
+| 3 ref spectra/structure instead of 1 | 0.52→0.49 |
+| NP-likeness prior | 0.037 (worse than random) |
+| Explicit molecular-formula pred | only 1.4× candidate reduction |
+| Library sim as fixed additive term | Class-2 0.52→0.27 |
+| Coarse cap 80 by lib_sim×100−\|Δmass\| | **−0.055 LB** (kills 24% Class-2 recall) |
+| z-score blend instead of GBM | 0.606 vs 0.620 |
+| Mass-error percentile feature | wash (helps only Class-1) |
+| Both model views + agreement features | 0.3042→0.3024 wash |
+| Targeted derivative enumeration (±O,±CH₂…) | 0.337→0.335 (starkhushi) |
+| more analogs >80 | flat (80→3709→100→3705) |
+
+**Still-open levers (spend here):** second input VIEW (+0.019 max effect), better per-spectrum
+model, more seeds, Class-1 recall for cross-instrument cases, and (the real prize) Class-3
+generation. Ranking, not recall; the ceiling with this pool is ≈0.43.
