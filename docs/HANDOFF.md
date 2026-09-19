@@ -1,71 +1,61 @@
-# HANDOFF — CASMI26 session 2026-09-18 (start here next session)
+# HANDOFF — CASMI26 (read first in a fresh session)
 
-Read this first in a fresh session. Everything below is verified, committed state —
-do not re-derive.
+Repo: `~/code/casmi26` — standalone git repo (own `.git`, own files, data gitignored).
+Ven v: `~/code/casmi26/.venv` (rdkit 2025.09.2, numba 0.60, numpy, pyarrow, sklearn, joblib).
+Kaggle CLI `~/.local/bin/kaggle` 2.2.4 (auth via ~/.kaggle/kaggle.json, user `aayanshabbir`).
 
-## Isolated worktree & data
-- Repo: `~/code/casmi26` (git, isolated). Data gitignored: `train.parquet`(2.8GB),
-  `test.parquet`, `sample_submission.csv`, `data/` pool, `.venv`.
-- venv: `~/code/casmi26/.venv` (rdkit 2025.09.2, numba 0.60, numpy, pandas,
-  pyarrow, scipy, scikit-learn). **numba installed.**
-- Kaggle data local, competition JOINED (user `aayanshabbir`), CLI
-  `~/.local/bin/kaggle` 2.2.4 works (ACCESS_TOKEN auth).
+## GOAL
+Top-10% medal (MRR@25 ~0.30+) on Enveda CASMI26 (400 mol, deadline 2026-12-14). Winner ~0.339.
+Competition is a **CODE competition — submissions are notebook-only** (CLI file-upload 400s by design;
+notebooks must be **fully offline** to be submittable).
 
-## Goal
-Top-10% medal (MRR~0.30+) on Enveda CASMI26 (400 mol, MRR@25, deadline
-2026-12-14). Winner ~0.339. We reproduce + improve the public V17 winner pipeline.
+## MEASURED STATE (all committed & verified)
+- **F-ANALOG baseline:** MRR 0.2125 / hit 62.75% (train-pool holdout, SEED 11, 51-60 mol).
+- **F-SPEED kernel:** `f_speed.search_shift_prange` prange-parallel, **4.3ms/3000 reps**, bit-exact vs serial.
+  (HANDOFF correction: serial was never a real wall — 6µs/rep; the ">120s" premise was a phantom.)
+- **F-RANKER (Phase 1, CLOSED):** **MRR 0.2670**, hit 64.7%, on the SAME SEED-11 holdout.
+  8× HistGB (2prior×4seed), **20 features** (`features_for_query`), F-SPEED swap in.
+  Leakage audit **CLEAN** (train-positive-taint check; the earlier "LEAKED" was my audit's bad assertion).
+- **Stage artifacts:** `data/franker_model.pkl` (6.2MB) = {"rankers":8×HistGB,"feat_dim":20}.
+  `data/trainpool.npz` (96MB) = {fp:(275,810,1280) uint8 bytepacked, mass, keys} — used for train AND test.
 
-## What is DONE + measured (all committed)
-- **Winner dissected** (4-channel retrieval + 31-feat GBDT). Ground truth: 82.6%
-  of winner's guesses are in train library; the real game is RANKING ~132
-  mass-matched candidates, not novel-discovery. Plan: `PLAN.md`.
-- **F-ANALOG (backbone) COMMITTED + MEASURED**: `src/analog_run_v2.py`,
-  commit `8cbc4be`. **MRR@25 = 0.2125 | hit@25 = 62.75%** on valid 51-molecule
-  holdout (train-structures pool). Recall proven; ranking weak. This is the
-  foundation number.
-- **Pool cached**: `data/trainpool.npz` (275,810 structs, consistent
-  Morgan2+3+RDKit2048 1280-byte fp scheme, NOT tied to COCONUT fp_bits).
-- **Key lessons learned (do not re-live):**
-  - Fleet profiles (`hermes --profile X chat -Q -q`) WEDGE ~5/5 on heavy local
-    runs — spawn MCP suite then idle at 0% CPU, never connect model. FLEET
-    CANNOT execute CASMI heavy compute. Work happens IN-SESSION (root).
-  - Dispatch law: brief = lean pointer to PLAN.md/doc, never inline payload;
-    never `-Q -q` for execution (hides wedges).
-  - Fleet lane: `agy-bridge` (gemini-3.8 at :8790) is the free lane; NOT `agy`
-    (hangs). Engineer+checker profiles routed to agy-bridge (engineer config
-    edited to AGY this session).
+## SUBMISSION STATUS ⚠️ (the live thread to finish)
+- Kernel `aayanshabbir/casmi26-analog-boosted-ranker` on Kaggle, **version 8, COMPLETE (no error)**,
+  fully-offline. Produced `submission.csv` (401 lines = header + 400, 0 invalid, all 25-padded).
+- Comp submission **ref 56368312, "First", status PENDING at last check (~19:00 EDT)** — was scoring.
+  **FIRST thing in a fresh session: poll `kaggle competitions submissions -c enveda-CASMI26-molecule-id-mass-spectra`
+  and read the publicScore.** Local copy: `kaggle/submission.csv`.
+- Expected ~0.24–0.28 (matches holdout 0.2670; pool coverage solid: only 1/400 mols lacked features).
 
-## NEXT (the actual work — highest priority)
-1. **F-SPEED — DONE, measured, committed** (`1e6b0cc`). `src/f_speed.py`
-   `search_shift_prange` BENCHMARKED vs old `_search_shift_batch` on a real
-   peak-rich query (q_peaks=32, 3000 real reps): NEW=**4.3 ms**, OLD=17.5 ms,
-   **4.1x**, output **bit-exact** (full-array max diff = 0.0), 3000/3000 nonzero,
-   GATE **PASS** by 3 orders of magnitude. Bench harness `src/bench_f_speed.py`
-   (v2; v1 was invalid — picked a q_peaks=0 query). Swap callers
-   (`analog_run_v2.py`, `f_ranker.py`) to `f_speed.search_shift_prange` — bit-exact
-   so provably safe.
-   **IMPORTANT CORRECTION**: the FSPEED.md premise (">120 s / ~40 ms/rep", "compute
-   wall") did NOT reproduce. Serial kernel is ~6 µs/rep = 17.5 ms/3000, NOT 40 ms.
-   The claimed wall was a phantom at the kernel level. The TRUE per-query cost is the
-   Python orchestration around the kernel (rep→agg dict loop, packed_tanimoto over
-   the +-10ppm candidate window) — confirm where F-RANKER actually spends time before
-   optimizing further. Do not re-grind a serial-kernel speedup; it is not the wall.
-2. **F-RANKER** — `src/f_ranker.py` mostly written (feature extraction + HistGB
-   on 120 train queries, same 60-mol holdout). Was blocked on sim speed — that
-   block is now removed (kernel is bit-exact-fast). Run it. Gate: beat 0.2125.
-3. Then F-CONS / F-MASS / F-ALEIGN / F-EAERN (spec2vec) — each gated > incumbent.
+## THE OFFLINE-SUBMITTABLE RECIPE (the hard-won part — do not regress)
+Mounted input lives at **`/kaggle/input/competitions/<id>/`** (NOT `/kaggle/input/<id>/`). So:
+1. **Input path:** resolve via `os.walk('/kaggle/input')` for `train.parquet`/`test.parquet` (recursive, robust).
+2. **Pool:** shipped as **private dataset `aayanshabbir/casmi26-trainpool`** (92MB, trainpool.npz)
+   -> loaded in ~1s via np.load, NO rdkit needed.
+3. **No pip / no rdkit / `enable_internet: false`** — this is what makes it submittable. The ONLY external
+   deps are numpy/pyarrow/sklearn/numba (base image). rdkit is used ONLY for pool build (done once locally).
+4. **Adduct map must cover all 11 test adducts** incl negatives: `[M-H]-`, `[M+CH2O2-H]-`, `[M-H2O-H]-`,
+   `[M+K]+`, `[M+Cl]-`, `[M-2H2O+H]+`, `[M-H2O+H]+`. Missing them silently drops molecules (27 in 1st run).
+5. **Local-pretest before pushing:** extract ipynb code cells -> run as a script against a local mirror of
+   the /kaggle/input layout -> confirm 400-row output BEFORE `kaggle kernels push`. This killed the
+   error-push-error-push cycle (numba import, t0 ordering, path glob all caught locally first).
+6. Kernel metadata: `enable_gpu: false`, `enable_internet: false`, `competition_sources` + dataset_sources.
 
-## Savant
-- Workspace `CASMI26 Molecule ID` (id 2277616941600993050) exists. Task
-  `tid-96cf8ee` = F-ANALOG (re-scoped). KG node staged for plan.
-- Fleet routing: checker + engineer on agy-bridge. AGY bridge healthy at :8790.
+## FLEET / EXECUTION REALITY (anti-patterns, learned the hard way)
+- **Every long background process gets SIGTERM'd by the Hermes runtime** (`agent_close`) after a while.
+  Code-writing fleet agent runs **finish**; heavy-compute runs (train/infer) **die** unless actively
+  `wait`ed on. **Pattern that works: launch background=true then IMMEDIATELY chain process wait(180s)
+  calls** so the session never idles. Do NOT `-Q -q` (hides wedges) and do NOT shell-`&`-detach (SIGKILL 0-byte).
+- Fleet AGY lane (`agy-bridge` gemini-3.8 @ :8790) works for code-writing; architect/routes visibly.
+- Persist + submit runs all worked fine ~21 min wall when manually waited.
 
-## Anti-patterns to avoid (learned the hard way)
-- Do NOT waste time on stale result files (`docs/fanalog_measured` had stale
- 0.000) — check mtime before trusting.
-- COCONUT pool ∩ train = ZERO (natural vs synthetic) — a COCONUT-only candidate
-  pool makes hold-out MRR trivially 0. Must use train-structure pool.
-- `-Q -q` quiet dispatch HIDES wedges. For anything that needs recovery, run
-  steerable / in-session.
-- f_p schme must be SELF-CONSISTENT (candidate vs analog), need not match author's
-  exact fp_bits (that is author-private and a rabbit hole).
+## NEXT PHASES (architect plan `docs/ARCHITECT_PLAN.md`, committed — each gated > incumbent)
+- **F-CLASS & F-CONS (Phase 2)** — code ALREADY written by researcher: `src/f_cons.py`, `src/f_class.py`,
+  `src/phase2_runner.py` (Platt/prior calibration + consensus cluster diversity). **Never run yet** (blocked
+  by SIGTERM kills earlier). Run `python src/phase2_runner.py` locally, gate > 0.2670, then new submission.
+- Then F-FRAG/F-MASS, F-FP/SPEC2VEC (two-ranker leak-safe blend), F-ENSEMBLE/SUBMIT per arch plan.
+
+## NOTES
+- Dispatched briefs (lean-pointer, AGY): `fleet_brief_*.txt` all in repo root. Committed.
+- Do NOT touch `~/dev/papertrade/` (Alpaca day-trading risk structures — protected).
+- Cheaper to iterate locally (fast) and only push to Kaggle when locally green.
