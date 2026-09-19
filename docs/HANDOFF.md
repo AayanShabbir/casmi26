@@ -19,6 +19,26 @@ notebooks must be **fully offline** to be submittable).
 - **Stage artifacts:** `data/franker_model.pkl` (6.2MB) = {"rankers":8×HistGB,"feat_dim":20}.
   `data/trainpool.npz` (96MB) = {fp:(275,810,1280) uint8 bytepacked, mass, keys} — used for train AND test.
 
+## ⚠️ PARADIGM CORRECTION (2026-09-19) — READ BEFORE ANY MORE SUBMISSION WORK
+- **This competition is NOT library candidate-ranking.** It is **de-novo 2D SMILES prediction**, scored by
+  MRR@25 on InChIKey14 match (RDKit tautomer canonicalization, first block). No candidate library provided.
+- Test molecules = **3 hidden novelty classes**: (1) in public spectral libraries (≈solved by retrieval),
+  (2) known structure in PubChem/COCONUT but no public spectra, **(3) NOVEL — not in any DB, must predict de novo**.
+  Forum class-share estimate: ~16 / 45 / 39. Retrieval-only ceiling ≈ 0.61 (perfect pool+rank).
+- **Our F-ANALOG/F-RANKER engine can only ever answer Class-1-type molecules** (train-pool analog search).
+  That is WHY ref 56368312 scored **0.077**. My 0.267 holdout was on held-out TRAIN molecules (guaranteed in
+  pool) — it measured library recall, not the real task. Public LB is scored on the HIDDEN-test public split
+  (real signal), so 0.077 is real.
+- **Winning recipe (public, ~0.33-0.37):** pool = train ∪ COCONUT 2.0 ∪ ChEBI/LIPID MAPS (~712k, ±8.5ppm);
+  **4 channels** = mass-shifted analog propagation + library match (gated) + fingerprint-model proba +
+  formula/fragmentation; 31-feature multi-seed HistGBR; calibrated. Retrieval ladder reproduces:
+  0.158 → 0.223 → 0.243 → 0.250 → 0.283 → 0.335 (starkhushi/prvsiyan).
+- **Traps learned:** filler/junk SMILES poison a row→0.000; valid repeated-pad SMILES waste ranks (we have
+  64/400 such rows); reordering existing candidates is worth ≤+0.076 — **pool quality is the big lever**;
+  PubChem expansion ≈ noise; adduct labels are curated-clean (don't re-hypothesize); seed noise ±0.006.
+- Sources: VetaVault `Research/CASMI26/SCOPE.md` + `WINNING-TEARDOWN.md` (full info). Flagship notebook:
+  `prvsiyan/analog-propagation-casmi-2026-baseline` (Apache 2.0).
+
 ## SUBMISSION STATUS ⚠️ (the live thread to finish)
 - Kernel `aayanshabbir/casmi26-analog-boosted-ranker` on Kaggle, **version 8, COMPLETE (no error)**,
   fully-offline. Produced `submission.csv` (401 lines = header + 400, 0 invalid, all 25-padded).
