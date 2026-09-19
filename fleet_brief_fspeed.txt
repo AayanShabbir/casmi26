@@ -1,0 +1,5 @@
+Implement F-SPEED in ~/code/casmi26. Read the authority doc first: ~/code/casmi26/docs/FSPEED.md (measured bottleneck, root causes, exact fix, acceptance gate). Work in that repo only; venv at ~/.venv; do not touch data/ or re-download.
+
+The deliverable: replace `_search_shift_batch` in src/analog_accel.py with a prange-parallelized + peak-pre-pruned version (same return contract). Then run the 3,000-rep timing benchmark from the doc and report the new wall time — must be <= 6s (the old one was >120s). Confirm 3 spot-check reps match the previous output to 1e-3. Write docs/FSPEED_REPORT.md with old/new timing + threshold. Keep `mz`, print progress every 1000 reps, no data writes into the pool.
+
+Report: the new per-3000-rep wall time, the pre-prune threshold you chose, and PASS/FAIL vs the <=6s gate. Real numbers only — if it isn't under 6s, print exactly what you got and what you tried. Do not skip the timing benchmark.
