@@ -132,8 +132,8 @@
 
 ## STATUS TRACKER (v3)
 - [x] PHASE 0 — kern v10 COMPLETE: **LB 0.077**, clean format, plumbing CONFIRMED (Session 2026-09-19)
-- [x] PHASE 1 — FORK of prvsiyan (v27, all 6 public inputs mounted) PUSHED + RUNNING (kern `casmi26-prvsiyan-fork-reproduce`)
-- [ ] PHASE 1 gate — reproduce ≥0.30 (accept ≥0.28 first), then submit + graft fixes
+- [x] PHASE 1 — FORK of prvsiyan reproduced: **LB 0.328** (his best 0.335; within seed noise). GATE ≥0.30 SMASHED.
+- [ ] PHASE 1b — graft the 3 surgical fixes (FPNet 128-peaks, leak-safe dual ranker, metric-exact dedup), each gated ≥2×noise
 - [ ] PHASE 2 — RANKING quality (second input view, better per-spectrum model, seeds)
 - [ ] PHASE 3 — ranker/calibration polish (config by submission)
 - [ ] PHASE 4 — Class-3 de-novo generation (f₃≈0.55, THE majority lever, GPU-budgeted)
