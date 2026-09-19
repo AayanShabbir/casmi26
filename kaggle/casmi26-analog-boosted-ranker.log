@@ -1,91 +1,43 @@
-[{"stream_name":"stderr","time":7.86710041,"data":"/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n"}
-,{"stream_name":"stderr","time":7.867175195,"data":"  validate(nb)\n"}
-,{"stream_name":"stderr","time":8.95105684,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":8.951089682,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":8.951095164,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":8.95109968,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stderr","time":9.714826933,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":9.714863171,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":9.71486843,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":9.714872383,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stdout","time":14.344976443,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 38.1/38.1 MB 50.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":14.547551093,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 38.1/38.1 MB 50.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":18.720874059,"data":"[rdkit] installed via rdkit\n"}
-,{"stream_name":"stdout","time":24.156467664,"data":"deps ready\n"}
-,{"stream_name":"stdout","time":24.173649885,"data":"config ok\n"}
-,{"stream_name":"stdout","time":24.301362929,"data":"kernels ok\n"}
-,{"stream_name":"stdout","time":24.319662793,"data":"fp ok\n"}
-,{"stream_name":"stdout","time":24.336315133,"data":"pool fn ok\n"}
-,{"stream_name":"stdout","time":24.354596337,"data":"lib ok\n"}
-,{"stream_name":"stdout","time":24.382201279,"data":"features ok\n"}
-,{"stream_name":"stderr","time":25.250976604,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":25.25100411,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":25.251010134,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
-,{"stream_name":"stderr","time":25.251107309,"data":"    raise_for_execution_errors(nb, output_path)\n"}
-,{"stream_name":"stderr","time":25.251123343,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
-,{"stream_name":"stderr","time":25.251318488,"data":"    raise error\n"}
-,{"stream_name":"stderr","time":25.25162252,"data":"papermill.exceptions.PapermillExecutionError: \n"}
-,{"stream_name":"stderr","time":25.251630897,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":25.251635116,"data":"Exception encountered at \"In [8]\":\n"}
-,{"stream_name":"stderr","time":25.251639097,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":25.251664294,"data":"FileNotFoundError                         Traceback (most recent call last)\n"}
-,{"stream_name":"stderr","time":25.251668577,"data":"/tmp/ipykernel_16/95557189.py in \u003ccell line: 0\u003e()\n"}
-,{"stream_name":"stderr","time":25.251672889,"data":"      8 \n"}
-,{"stream_name":"stderr","time":25.251676727,"data":"      9 t0 = time.time()\n"}
-,{"stream_name":"stderr","time":25.251680303,"data":"---\u003e 10 L = Lib(TRAIN, 'inchikey14')\n"}
-,{"stream_name":"stderr","time":25.251684306,"data":"     11 print(f'[lib+clean] {L.n} spectra {time.time()-t0:.0f}s', flush=True)\n"}
-,{"stream_name":"stderr","time":25.251688622,"data":"     12 pool_fp, pool_mass, pool_keys = build_pool()\n"}
-,{"stream_name":"stderr","time":25.251692614,"data":"\n"}
-,{"stream_name":"stderr","time":25.251696217,"data":"/tmp/ipykernel_16/3468546125.py in __init__(self, path, key_col)\n"}
-,{"stream_name":"stderr","time":25.251700024,"data":"      1 class Lib:\n"}
-,{"stream_name":"stderr","time":25.251703634,"data":"      2     def __init__(self, path, key_col):\n"}
-,{"stream_name":"stderr","time":25.251707387,"data":"----\u003e 3         t = pq.read_table(path, columns=[key_col, 'adduct', 'precursor_mz',\n"}
-,{"stream_name":"stderr","time":25.251711391,"data":"      4                                          'ms2_mzs', 'ms2_normalized_intensities'])\n"}
-,{"stream_name":"stderr","time":25.251715235,"data":"      5         self.ik = np.asarray(t.column(key_col).cast('string').to_pylist(), dtype=object)\n"}
-,{"stream_name":"stderr","time":25.251719376,"data":"\n"}
-,{"stream_name":"stderr","time":25.251723087,"data":"/usr/local/lib/python3.12/dist-packages/pyarrow/parquet/core.py in read_table(source, columns, use_threads, schema, use_pandas_metadata, read_dictionary, binary_type, list_type, memory_map, buffer_size, partitioning, filesystem, filters, ignore_prefixes, pre_buffer, coerce_int96_timestamp_unit, decryption_properties, thrift_string_size_limit, thrift_container_size_limit, page_checksum_verification, arrow_extensions_enabled)\n"}
-,{"stream_name":"stderr","time":25.25175296,"data":"   1889 \n"}
-,{"stream_name":"stderr","time":25.251756687,"data":"   1890     try:\n"}
-,{"stream_name":"stderr","time":25.251760259,"data":"-\u003e 1891         dataset = ParquetDataset(\n"}
-,{"stream_name":"stderr","time":25.251764236,"data":"   1892             source,\n"}
-,{"stream_name":"stderr","time":25.251768309,"data":"   1893             schema=schema,\n"}
-,{"stream_name":"stderr","time":25.251771972,"data":"\n"}
-,{"stream_name":"stderr","time":25.251775665,"data":"/usr/local/lib/python3.12/dist-packages/pyarrow/parquet/core.py in __init__(self, path_or_paths, filesystem, schema, filters, read_dictionary, binary_type, list_type, memory_map, buffer_size, partitioning, ignore_prefixes, pre_buffer, coerce_int96_timestamp_unit, decryption_properties, thrift_string_size_limit, thrift_container_size_limit, page_checksum_verification, arrow_extensions_enabled)\n"}
-,{"stream_name":"stderr","time":25.25178109,"data":"   1469                 infer_dictionary=True)\n"}
-,{"stream_name":"stderr","time":25.251784919,"data":"   1470 \n"}
-,{"stream_name":"stderr","time":25.251789469,"data":"-\u003e 1471         self._dataset = ds.dataset(path_or_paths, filesystem=filesystem,\n"}
-,{"stream_name":"stderr","time":25.251824161,"data":"   1472                                    schema=schema, format=parquet_format,\n"}
-,{"stream_name":"stderr","time":25.251828198,"data":"   1473                                    partitioning=partitioning,\n"}
-,{"stream_name":"stderr","time":25.251831905,"data":"\n"}
-,{"stream_name":"stderr","time":25.251836173,"data":"/usr/local/lib/python3.12/dist-packages/pyarrow/dataset.py in dataset(source, schema, format, filesystem, partitioning, partition_base_dir, exclude_invalid_files, ignore_prefixes)\n"}
-,{"stream_name":"stderr","time":25.251852565,"data":"    788 \n"}
-,{"stream_name":"stderr","time":25.251857005,"data":"    789     if _is_path_like(source):\n"}
-,{"stream_name":"stderr","time":25.25186087,"data":"--\u003e 790         return _filesystem_dataset(source, **kwargs)\n"}
-,{"stream_name":"stderr","time":25.251864888,"data":"    791     elif isinstance(source, (tuple, list)):\n"}
-,{"stream_name":"stderr","time":25.251868875,"data":"    792         if all(_is_path_like(elem) or isinstance(elem, FileInfo) for elem in source):\n"}
-,{"stream_name":"stderr","time":25.251873092,"data":"\n"}
-,{"stream_name":"stderr","time":25.2518769,"data":"/usr/local/lib/python3.12/dist-packages/pyarrow/dataset.py in _filesystem_dataset(source, schema, filesystem, partitioning, format, partition_base_dir, exclude_invalid_files, selector_ignore_prefixes)\n"}
-,{"stream_name":"stderr","time":25.251881207,"data":"    470             fs, paths_or_selector = _ensure_multiple_sources(source, filesystem)\n"}
-,{"stream_name":"stderr","time":25.251885118,"data":"    471     else:\n"}
-,{"stream_name":"stderr","time":25.251888744,"data":"--\u003e 472         fs, paths_or_selector = _ensure_single_source(source, filesystem)\n"}
-,{"stream_name":"stderr","time":25.251892684,"data":"    473 \n"}
-,{"stream_name":"stderr","time":25.251896264,"data":"    474     options = FileSystemFactoryOptions(\n"}
-,{"stream_name":"stderr","time":25.251899925,"data":"\n"}
-,{"stream_name":"stderr","time":25.251903523,"data":"/usr/local/lib/python3.12/dist-packages/pyarrow/dataset.py in _ensure_single_source(path, filesystem)\n"}
-,{"stream_name":"stderr","time":25.251907687,"data":"    435         paths_or_selector = [path]\n"}
-,{"stream_name":"stderr","time":25.251911416,"data":"    436     else:\n"}
-,{"stream_name":"stderr","time":25.251915069,"data":"--\u003e 437         raise FileNotFoundError(path)\n"}
-,{"stream_name":"stderr","time":25.251918856,"data":"    438 \n"}
-,{"stream_name":"stderr","time":25.251922406,"data":"    439     return filesystem, paths_or_selector\n"}
-,{"stream_name":"stderr","time":25.251926126,"data":"\n"}
-,{"stream_name":"stderr","time":25.251930101,"data":"FileNotFoundError: /kaggle/input/enveda-casmi26-molecule-id-mass-spectra/train.parquet\n"}
-,{"stream_name":"stderr","time":25.251932892,"data":"\n"}
-,{"stream_name":"stderr","time":27.940746939,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
-,{"stream_name":"stderr","time":27.940786688,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
-,{"stream_name":"stderr","time":28.138986665,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
-,{"stream_name":"stderr","time":28.139018135,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
-,{"stream_name":"stderr","time":28.901485502,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
-,{"stream_name":"stderr","time":29.286129532,"data":"[NbConvertApp] Writing 37584 bytes to __notebook__.ipynb\n"}
-,{"stream_name":"stderr","time":32.325126091,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
-,{"stream_name":"stderr","time":33.485344135,"data":"[NbConvertApp] Writing 416009 bytes to __results__.html\n"}
+[{"stream_name":"stderr","time":9.024852608,"data":"/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n"}
+,{"stream_name":"stderr","time":9.024932605,"data":"  validate(nb)\n"}
+,{"stream_name":"stderr","time":10.396414548,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":10.396459256,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":10.396464553,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":10.396468543,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":11.359942275,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":11.359981936,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":11.359985739,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":11.359988901,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":17.67481726,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 38.1/38.1 MB 47.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":17.87733047,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 38.1/38.1 MB 47.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":22.799054367,"data":"[rdkit] installed via rdkit\n"}
+,{"stream_name":"stdout","time":22.801119551,"data":"[paths] TRAIN exists=False TEST exists=False\n"}
+,{"stream_name":"stderr","time":23.349988734,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":23.350024936,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":23.350032941,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":23.350933792,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":23.350962213,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":23.350969304,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":23.350975229,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":23.350980237999998,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":23.350983797,"data":"Exception encountered at \"In [1]\":\n"}
+,{"stream_name":"stderr","time":23.350986994,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":23.350990236,"data":"AssertionError                            Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":23.350993518,"data":"/tmp/ipykernel_16/3513775531.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":23.350997119,"data":"     26 OUT   = '/kaggle/working/submission.csv'\n"}
+,{"stream_name":"stderr","time":23.35100016,"data":"     27 print(f'[paths] TRAIN exists={os.path.exists(TRAIN)} TEST exists={os.path.exists(TEST)}', flush=True)\n"}
+,{"stream_name":"stderr","time":23.351105894,"data":"---\u003e 28 assert os.path.exists(TRAIN), f'train missing in {INP}: {os.listdir(INP)}'\n"}
+,{"stream_name":"stderr","time":23.351110614,"data":"     29 assert os.path.exists(TEST),  f'test missing in {INP}: {os.listdir(INP)}'\n"}
+,{"stream_name":"stderr","time":23.351113305,"data":"     30 import numpy as np\n"}
+,{"stream_name":"stderr","time":23.351115724,"data":"\n"}
+,{"stream_name":"stderr","time":23.35111817,"data":"AssertionError: train missing in /kaggle/input/competitions/: ['enveda-CASMI26-molecule-id-mass-spectra']\n"}
+,{"stream_name":"stderr","time":23.351120867,"data":"\n"}
+,{"stream_name":"stderr","time":26.397312733,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":26.397350316,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":26.63226977,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":26.63230637,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":27.512542488,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":27.910197556,"data":"[NbConvertApp] Writing 27714 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":31.172110099,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":32.390149593,"data":"[NbConvertApp] Writing 409802 bytes to __results__.html\n"}
 ]
