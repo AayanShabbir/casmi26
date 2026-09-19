@@ -36,15 +36,23 @@ Top-10% medal (MRR~0.30+) on Enveda CASMI26 (400 mol, MRR@25, deadline
     edited to AGY this session).
 
 ## NEXT (the actual work — highest priority)
-1. **F-SPEED** — `src/f_speed.py` WRITTEN but NOT yet benchmarked (the user said
-   stop this session). It's a prange-parallelized mass-shift similarity
-   (`search_shift_prange`), replacing the serial `_search_shift_batch`
-   (40ms/rep, >120s/3000). GATE: <=6s for 3000 reps. Callers currently import
-   `analog_accel._search_shift_batch` — swap to `f_speed.search_shift_prange`
-   (same contract). Benchmark in next session.
+1. **F-SPEED — DONE, measured, committed** (`1e6b0cc`). `src/f_speed.py`
+   `search_shift_prange` BENCHMARKED vs old `_search_shift_batch` on a real
+   peak-rich query (q_peaks=32, 3000 real reps): NEW=**4.3 ms**, OLD=17.5 ms,
+   **4.1x**, output **bit-exact** (full-array max diff = 0.0), 3000/3000 nonzero,
+   GATE **PASS** by 3 orders of magnitude. Bench harness `src/bench_f_speed.py`
+   (v2; v1 was invalid — picked a q_peaks=0 query). Swap callers
+   (`analog_run_v2.py`, `f_ranker.py`) to `f_speed.search_shift_prange` — bit-exact
+   so provably safe.
+   **IMPORTANT CORRECTION**: the FSPEED.md premise (">120 s / ~40 ms/rep", "compute
+   wall") did NOT reproduce. Serial kernel is ~6 µs/rep = 17.5 ms/3000, NOT 40 ms.
+   The claimed wall was a phantom at the kernel level. The TRUE per-query cost is the
+   Python orchestration around the kernel (rep→agg dict loop, packed_tanimoto over
+   the +-10ppm candidate window) — confirm where F-RANKER actually spends time before
+   optimizing further. Do not re-grind a serial-kernel speedup; it is not the wall.
 2. **F-RANKER** — `src/f_ranker.py` mostly written (feature extraction + HistGB
-   on 120 train queries, same 60-mol holdout). Was blocked on sim speed.
-   After F-SPEED passes, run it. Gate: beat 0.2125.
+   on 120 train queries, same 60-mol holdout). Was blocked on sim speed — that
+   block is now removed (kernel is bit-exact-fast). Run it. Gate: beat 0.2125.
 3. Then F-CONS / F-MASS / F-ALEIGN / F-EAERN (spec2vec) — each gated > incumbent.
 
 ## Savant
