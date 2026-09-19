@@ -19,6 +19,7 @@ RDLogger.DisableLog("rdApp.*")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 import analog_accel as A
+import f_speed as FS
 
 TRAIN = os.path.join(ROOT, "train.parquet")
 POOL_CACHE = os.path.join(ROOT, "data", "trainpool.npz")
@@ -29,7 +30,7 @@ PPM_WIN = 10.0
 ANALOG_WIN = 200.0
 N_ANALOG = 100
 SIM_POWER = 4.0
-NFEAT = 9
+NFEAT = 20
 
 
 def _gens():
@@ -84,8 +85,8 @@ def query_features(L, key2pool, pool_fp, pool_keys, pool_mass, nmr, rep, r):
         return None
     rep_rows = rep[lo:hi]
     shifts = (target - nmr[lo:hi]).astype(np.float32)
-    sims = A._search_shift_batch(qm, qp, rep_rows.astype(np.int64),
-                                 L.coff.astype(np.int64), L.cmz, L.cp, A.MZ_TOL, shifts)
+    sims = FS.search_shift_prange(qm, qp, rep_rows.astype(np.int64),
+                                  L.coff.astype(np.int64), L.cmz, L.cp, A.MZ_TOL, shifts)
     agg = {}
     for j in range(len(rep_rows)):
         ka = str(L.ik[rep_rows[j]])
@@ -102,18 +103,29 @@ def query_features(L, key2pool, pool_fp, pool_keys, pool_mass, nmr, rep, r):
     nc = len(cand)
     # per-candidate: max sim to any analog, its tanimoto, combined, count, rank
     max_sim = np.zeros(nc); bk_tan = np.zeros(nc); combined = np.zeros(nc); cnt = np.zeros(nc, np.int32)
+    max_sim2 = np.zeros(nc); max_sim4 = np.zeros(nc)           # max s^2 / s^4 over overlapping analogs
+    sum_sim2 = np.zeros(nc); sum_sim4 = np.zeros(nc)            # running sums (divided by cnt later)
+    n_hi = np.zeros(nc, np.int32); n_mid = np.zeros(nc, np.int32); n_lo = np.zeros(nc, np.int32)
     for j, ak in enumerate(akeys):
         pi = key2pool.get(ak)
         if pi is None:
             continue
         t = packed_tanimoto(pool_fp[pi], cf)   # (nc,)
-        s = float(asims[j])
+        s = float(asims[j]); s2 = s * s; s4 = s2 * s2
         upd = s ** SIM_POWER * t
         gt = t > bk_tan
         max_sim[gt] = s
         bk_tan[gt] = t[gt]
         np.maximum(combined, upd, out=combined)
-        cnt += (t > 0).astype(np.int32)
+        ov = t > 0
+        cnt += ov.astype(np.int32)
+        np.maximum(max_sim2, np.where(ov, s2, 0.0), out=max_sim2)
+        np.maximum(max_sim4, np.where(ov, s4, 0.0), out=max_sim4)
+        sum_sim2 += np.where(ov, s2, 0.0)
+        sum_sim4 += np.where(ov, s4, 0.0)
+        n_hi += (ov & (s >= 0.8)).astype(np.int32)
+        n_mid += (ov & (s >= 0.6) & (s < 0.8)).astype(np.int32)
+        n_lo += (ov & (s >= 0.4) & (s < 0.6)).astype(np.int32)
     # lib sim = max over analogs that ARE the candidate key itself
     lib_sim = np.zeros(nc)
     for j, ak in enumerate(akeys):
@@ -124,14 +136,22 @@ def query_features(L, key2pool, pool_fp, pool_keys, pool_mass, nmr, rep, r):
         if len(m):
             lib_sim[m] = max(lib_sim[m], float(asims[j]))
     # rank features: normalize
-    rankoftop = np.zeros(nc)
+    rankoftop = np.zeros(nc); ecdf_tan = np.zeros(nc); ecdf_comb = np.zeros(nc)
     for c in range(nc):
         # fractional rank of this candidate's max_sim among all peaks (1=best)
         rankoftop[c] = 1.0 - (np.sum(max_sim > max_sim[c]) / max(nc, 1))
+        ecdf_tan[c] = np.sum(bk_tan < bk_tan[c]) / max(nc, 1)      # frac of cohort with lower tanimoto
+        ecdf_comb[c] = np.sum(combined < combined[c]) / max(nc, 1)
     ppm = (pool_mass[cand] - target) / target * 1e6
     lcand = np.log(nc + 1.0)
+    ovn = np.maximum(cnt, 1.0)
     Xf = np.column_stack([lib_sim, max_sim, bk_tan, combined, rankoftop, cnt / max(1, len(akeys)),
-                          np.abs(ppm), np.full(nc, lcand), np.log1p(cnt)])
+                          np.abs(ppm), np.full(nc, lcand), np.log1p(cnt),
+                          ecdf_tan, ecdf_comb,
+                          max_sim2, max_sim4, sum_sim2 / ovn, sum_sim4 / ovn,
+                          np.log1p(n_hi), np.log1p(n_mid), np.log1p(n_lo),
+                          np.floor(np.abs(ppm)), (lib_sim > 0).astype(np.float32)])
+    assert Xf.shape[1] == NFEAT, (Xf.shape[1], NFEAT)
     y = np.zeros(nc, dtype=np.int8)
     qkidx = np.where(pool_keys[cand] == np.asarray(k))[0]
     if len(qkidx):
@@ -180,11 +200,11 @@ def main():
         print("[F-RANKER] no training rows!"); return
     Xtr = np.vstack(Xtr); ytr = np.concatenate(ytr)
     print(f"[train] {Xtr.shape[0]} rows, {ytr.sum()} positives {time.time()-t0:.0f}s", flush=True)
-    # ---- train (2 priors x 2 seeds bagging) ----
+    # ---- train (2 priors x 4 seeds bagging, per winner) ----
     RANKERS = []
     for w1 in (0.5, 0.6):
         W = np.where(ytr == 1, w1, 1.0 - w1)
-        for sd in (0, 1):
+        for sd in (0, 1, 2, 3):
             m = HistGradientBoostingClassifier(random_state=sd, max_depth=6, max_iter=500,
                                                learning_rate=0.03, min_samples_leaf=80,
                                                l2_regularization=1.0)
