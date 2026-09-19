@@ -131,8 +131,9 @@
 - Every push records: config hash, local gate number, expected LB range. Compare.
 
 ## STATUS TRACKER (v3)
-- [ ] PHASE 0 — kern v10 RUNNING (unique-candidate writer + no-empty fix), score PENDING
-- [ ] PHASE 1 — FORK prvsiyan → reproduce ≥0.30 → 3 surgical grafts (the big jump)
+- [x] PHASE 0 — kern v10 COMPLETE: **LB 0.077**, clean format, plumbing CONFIRMED (Session 2026-09-19)
+- [x] PHASE 1 — FORK of prvsiyan (v27, all 6 public inputs mounted) PUSHED + RUNNING (kern `casmi26-prvsiyan-fork-reproduce`)
+- [ ] PHASE 1 gate — reproduce ≥0.30 (accept ≥0.28 first), then submit + graft fixes
 - [ ] PHASE 2 — RANKING quality (second input view, better per-spectrum model, seeds)
 - [ ] PHASE 3 — ranker/calibration polish (config by submission)
 - [ ] PHASE 4 — Class-3 de-novo generation (f₃≈0.55, THE majority lever, GPU-budgeted)
