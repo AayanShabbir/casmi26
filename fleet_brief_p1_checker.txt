@@ -1,0 +1,46 @@
+# CHECKER EXECUTION BRIEF — CASMI26 Phase 1: F-RANKER (PART B: independent audit)
+
+You are `checker`, the adversarial gatekeeper for CASMI26 Phase 1. AGY lane. Read
+the authority docs FIRST (facts, don't re-derive):
+- ~/code/casmi26/docs/ARCHITECT_PLAN.md   (esp. Phase 1 + Slicing section: you own bench/)
+- ~/code/casmi26/docs/HANDOFF.md          (state + F-SPEED correction)
+- ~/code/casmi26/src/f_ranker.py          (the ranker you are auditing)
+
+## Context
+`programmer` (your Phase-1 partner) is building/training the GBDT ranker in
+src/f_ranker.py with a target MRR@25 > 0.2125 (F-ANALOG incumbent) at hit@25 >= 62.75%.
+The train/holdout split is SEED 11, 120 train queries + 60 holdout, matching F-ANALOG.
+
+## Your deliverable (Slice B): ~/code/casmi26/bench/eval_ranker.py + docs/RANKER_AUDIT.md
+
+### 1. Build an INDEPENDENT holdout evaluator (do not reuse programmer's metric code)
+Write bench/eval_ranker.py that independently:
+- loads the SAME train.parquet + data/trainpool.npz (identical to f_ranker),
+- recomputes the holdout MRR@25 directly from the candidate ranking the ranker
+  produces (or from the saved prediction artifact if programmer emitted one),
+- prints [CHECKER] MRR@25=... hit@25=...
+Do NOT call into src/f_ranker.py's own metric block; compute from the predictions so
+it's an adversarial check, not a re-run of the same code path.
+
+### 2. Leakage audit (the critical part)
+Verify the training rows did NOT leak the holdout truth:
+- assert the 60 eval keys are NOT in the 120 train-query keys,
+- assert no ranking candidate for eval in the training feature matrix,
+- confirm the split uses SEED 11 and matches F-ANALOG's holdout exactly.
+Write findings to docs/RANKER_AUDIT.md.
+
+### 3. Gate signoff
+PASS iff: (a) your independent MRR@25 STRICTLY > 0.2125, (b) hit @25 >= 62.75%,
+(c) no leakage found. If programmer hasn't produced predictions yet, POLL
+docs/franker_measured.txt every ~120s up to your turn budget, then evaluate.
+
+## Constraints
+- Work ONLY in ~/code/casmi26. Do not touch src/f_ranker.py, analog_accel.py,
+  f_speed.py, train.parquet, data/, or test.parquet. You OWN bench/ + docs/RANKER_AUDIT.md.
+- Heavy compute via the nohup-background-script pattern (logs/checker.log), poll it.
+- Never re-run or hand-edit the ranker to inflate the number. Real numbers only.
+- If you hit your turn budget without a verdict, STOP and return:
+  'NOT DONE — <exact status + what's missing>', exit non-zero.
+
+Return: your independent MRR@25/hit@25, the leakage verdict (CLEAN / LEAKED), PASS/FAIL,
+and whether the old F-SPEED serial kernel or a leak would explain any discrepancy.

@@ -1,0 +1,4 @@
+mode=gbdt-rank
+MRR@25=0.266961
+hit@25=0.647059
+n_queries=51

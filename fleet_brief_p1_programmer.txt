@@ -1,0 +1,49 @@
+# PROGRAMMER EXECUTION BRIEF — CASMI26 Phase 1: F-RANKER (PART A: build+train)
+
+You are `programmer`, executing Phase 1 of the CASMI26 arch plan. AGY lane. Read
+the authority docs FIRST (facts, don't re-derive):
+- ~/code/casmi26/docs/ARCHITECT_PLAN.md   (esp. Phase 1 + Slicing section: you own src/)
+- ~/code/casmi26/docs/FRANKER_PLAN.md     (the phase scoping)
+- ~/code/casmi26/docs/HANDOFF.md          (state + F-SPEED correction)
+- ~/code/casmi26/src/f_ranker.py          (the ranker code, ~85% written)
+
+## Your deliverable (Slice A): working src/f_ranker.py that BEATS the F-ANALOG gate.
+
+### Step 0 — the F-SPEED swap (mandatory first edit)
+`src/f_ranker.py` line 87 imports `A._search_shift_batch` (the serial kernel).
+Swap the call to `f_speed.search_shift_prange` — SAME contract, verified bit-exact
+(see docs/FSPEED_REPORT.md). Add `import f_speed as FS` next to `import analog_accel
+as A` and put `FS.` in front of that one call. Do NOT rewrite the kernel.
+
+### Step 1 — build the feature matrix + train
+`python src/f_ranker.py` currently builds 9 features and runs
+HistGradientBoostingClassifier. Run it to get your real baseline number. Then,
+staying inside the ranker's existing structure, strengthen it (the winner used ~31
+features and 2-prior x 4-seed bagging; this file does 2-prior x 2-seed) — add the
+cheap, grounded candidate features already available per-candidate (ecdf/rank of
+tanimoto among cohort, max/mean sim^2 and sim^4, log1p counts per analog-sim level,
+ppm bin, cohort size). Do not invent features that require new data downloads.
+
+### Heavy-compute law (from the arch plan, non-negotiable)
+Lib load + cleaning is ~265s; 120 train queries is heavy. Launch training as a
+BACKGROUND script with disk logging and POLL it — never block an interactive loop:
+  cd ~/code/casmi26 && nohup .venv/bin/python src/f_ranker.py > logs/franker_train.log 2>&1 &
+poll logs/franker_train.log every ~120s for the [F-RANKER] line. Exit code 0 only
+when the final `[F-RANKER] MRR@25=...` line appears.
+
+## Exit gate
+PASS iff final `[F-RANKER] MRR@25` (written to docs/franker_measured.txt) STRICTLY
+> 0.2125 (the F-ANALOG incumbent). Also require hit@25 >= 62.75% (no regression).
+
+## Constraints
+- Work ONLY in ~/code/casmi26. Do not touch data/, train.parquet, test.parquet,
+  or re-download anything.
+- Do not modify analog_run_v2.py, analog_accel.py, or f_speed.py.
+- Heavy compute ONLY via the nohup-background-script pattern above.
+- Write your changes with lean commits (git add <yours>; git commit -m "F-RANKER ...").
+- If you hit your turn budget without a PASS line, STOP and return:
+  'NOT DONE — <last log tail + exactly what's missing>', exit non-zero. NEVER invent
+  an MRR number; real numbers only, from the log.
+
+Return: the final MRR@25 / hit@25 from docs/franker_measured.txt, the gate verdict
+PASS/FAIL, your added features, and the git commit hash.

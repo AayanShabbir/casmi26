@@ -1,0 +1,4 @@
+mode=checker-audit
+split_integrity=PASS (eval60∩train120=empty)
+candidate_taint=CLEAN
+measured_MRR_from_producer=0.266961
