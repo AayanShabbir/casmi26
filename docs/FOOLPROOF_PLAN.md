@@ -138,7 +138,17 @@
   dedup graft was already baked into the pool build.
 - [ ] PHASE 2 — RANKING quality (second input view, better per-spectrum model, seeds)...[truncated]
 - [ ] PHASE 3 — ranker/calibration polish (config by submission)
-- [ ] PHASE 4 — Class-3 de-novo generation (f₃≈0.55, THE majority lever, GPU-budgeted)
+- [x] PHASE 4 feasibility PROBE (2026-09-19) — **NO-GO**: spectrum→SMILES seq2seq, leak-free
+  structure-holdout, 4000 steps, loss 4.6→0.62 but **val exact 0/120, valid 0/120** at every step.
+  Naive auto-regressive generation of held-out structures does not learn in this framing. **Parked
+  Phase 4** pending a fundamentally different framing (fg-conditional diffusion / strong pretrained
+  ChemBERTa-aligned decoder) that shows signal in its own probe first. Full result → `docs/GEN-PROBE-RESULT.md`.
+- [ ] TRACK A (now): ranking/ordering polish on 0.328 engine (better per-spectrum fp model, second
+  input view, seeds) → target 0.34–0.35 (realistic pool ceiling ~0.43)
+- [x] TRACK A exp1 (fp v6 ensemble swap, 2026-09-20) — **LB 0.320, no gain** vs 0.328 baseline
+  (−0.008 ≈ 1.3×seed noise, slightly negative). Bigger/newer fp weights do NOT help ordering on the
+  current engine. **Lever dead — do not re-test weights.** Remaining Track-A option = genuinely new
+  input VIEW (collision-energy-conditioned / MS1-aware), not more of the same model family.
 - [ ] PHASE 5 — ensemble & final submit
 
 ---
