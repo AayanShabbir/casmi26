@@ -130,7 +130,13 @@
 - LB deltas < ±0.006 seed noise; phase "done" only when its gate is beat by ≥2× noise.
 - Every push records: config hash, local gate number, expected LB range. Compare.
 
-## STATUS TRACKER (v3)
+## FLOOR CONTRACT (Phase A — LOCKED, 2026-09-20)
+- **Banked floor = 0.328** (ref 56371855 fork / 56375106 auto). Artifact: `submissions/floor-0.328.csv` (400 rows, 0 nulls, verified).
+- **Submit rule: NOTHING below 0.328 ships.** The floor is the default fallback for any future submission:
+  if a run can't be shown to beat it by ≥2×noise (±0.012) with a plausible mechanism, the floor is what goes in.
+- Every new experiment's baseline gate is this floor, not a weaker intermediate.
+
+## STATUS TRACKER (v4)
 - [x] PHASE 0 — kern v10 COMPLETE: **LB 0.077**, clean format, plumbing CONFIRMED (Session 2026-09-19)
 - [x] PHASE 1 — FORK of prvsiyan reproduced: **LB 0.328** (his best 0.335; within seed noise). GATE ≥0.30 SMASHED.
 - [x] PHASE 1b attempt #1 (metric-exact dedup) — **NO-OP**: output byte-identical to fork. Pool already

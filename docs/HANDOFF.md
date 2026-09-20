@@ -19,6 +19,11 @@ notebooks must be **fully offline** to be submittable).
 - **Stage artifacts:** `data/franker_model.pkl` (6.2MB) = {"rankers":8×HistGB,"feat_dim":20}.
   `data/trainpool.npz` (96MB) = {fp:(275,810,1280) uint8 bytepacked, mass, keys} — used for train AND test.
 
+## SUBMISSION LOG (live, newest first)
+- **56371855 / 56375106 — 0.328 (THE FLOOR)** — prvsiyan fork reproduce. Artifact `submissions/floor-0.328.csv`.
+- 56379655 — 0.320 — fp-v6 weight swap (dead; below floor, do not ship).
+- 56370580 — 0.077 — kern v10 clean-but-engine-unchanged (valid format proof only).
+
 ## ⚠️ PARADIGM CORRECTION (2026-09-19) — READ BEFORE ANY MORE SUBMISSION WORK
 - **This competition is NOT library candidate-ranking.** It is **de-novo 2D SMILES prediction**, scored by
   MRR@25 on InChIKey14 match (RDKit tautomer canonicalization, first block). No candidate library provided.
